@@ -48,7 +48,7 @@ def request_password_reset(request):
             print(prr)
             return HttpResponseRedirect(reverse('login_app:password_reset'))
 
-    return render(request, 'login/request_password_reset.html')
+    return render(request, 'login_app/request_password_reset.html')
 
 def password_reset(request):
     if request.method == "POST":
