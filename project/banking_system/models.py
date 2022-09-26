@@ -31,5 +31,3 @@ class Ledger(models.Model):
                 ])
             else:
                 print('Transaction not allowed. Balance too low!')
-
-
