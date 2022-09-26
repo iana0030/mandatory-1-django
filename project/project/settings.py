@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'banking_system',
-    'login_app'
+    'login_app',
 ]
 
 MIDDLEWARE = [
