@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<nav>
+<a href="{% url 'login_app:login' %}">Log in</a>
+</nav>
+
 <h1>Sign Up</h1>
    <hr />
    <form action="{% url 'login_app:sign_up' %}" method="POST">
