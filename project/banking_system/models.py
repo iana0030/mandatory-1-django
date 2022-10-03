@@ -6,6 +6,55 @@ from django.db import models, transaction
 seed(1)
 BANK_FK = 'bank_account_fk'
 
+# represents the User class which is used by bank employees for administration or by regular customers
+class User(models.Model):
+    id = models.IntegerField(primary_key=True)
+    username = models.CharField(max_length=45)
+    user_email = models.CharField(max_length=45)
+    first_name = models.CharField(max_length=45)
+    last_name = models.CharField(max_length=45)
+
+    def __str__(self):
+        return f"{self.id} - {self.username} - {self.user_email} - {self.first_name} - {self.last_name}"
+    
+    @classmethod
+    def create_user(cls, username = username, user_email = user_email, first_name = first_name, last_name = last_name):
+        user = cls.objects.create(
+            username = username,
+            user_email = user_email, 
+            first_name = first_name,
+            last_name = last_name
+        )
+        return user
+
+    def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_fk):
+        customer = Customer.objects.create(
+            username = username,
+            password = password,
+            first_name = first_name,
+            last_name = last_name,
+            address = address, 
+            phone_number = phone_number, 
+            rank = rank,
+            user_fk = User.objects.get(pk=user_fk)
+        )
+        return customer
+
+    def view_all_customers():
+        all_customers = Customer.objects.all()
+        return all_customers
+
+    def view_all_accounts():
+        all_accounts = Account.objects.all()
+        return all_accounts
+
+    def change_customer_rank(customer_pk, new_rank):
+        customer = Customer.objects.get(pk=customer_pk)
+        customer.rank = new_rank
+        customer.save()
+        return customer
+
+
 # represents the Customer class 
 class Customer(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -16,6 +65,7 @@ class Customer(models.Model):
     address = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=20)
     rank = models.CharField(max_length=6)
+    user_fk = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.id} - {self.username} - {self.password} - {self.first_name} {self.last_name} - {self.address} - {self.phone_number} - {self.rank}"
@@ -47,6 +97,7 @@ class Customer(models.Model):
         else:
             Ledger.make_transactions(self, BANK_FK, amount, text)
 
+# represents Account class which can belong to one Customer
 class Account(models.Model):
     account_id = models.IntegerField(primary_key=True)
     account_number = models.CharField(max_length=30)
