@@ -27,7 +27,7 @@ class User(models.Model):
         )
         return user
 
-    def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_fk):
+    def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key):
         customer = Customer.objects.create(
             username = username,
             password = password,
@@ -36,7 +36,7 @@ class User(models.Model):
             address = address, 
             phone_number = phone_number, 
             rank = rank,
-            user_fk = User.objects.get(pk=user_fk)
+            user_fk = User.objects.get(pk=user_foreign_key)
         )
         return customer
 
@@ -48,12 +48,11 @@ class User(models.Model):
         all_accounts = Account.objects.all()
         return all_accounts
 
-    def change_customer_rank(customer_pk, new_rank):
-        customer = Customer.objects.get(pk=customer_pk)
+    def change_customer_rank(customer_primary_key, new_rank):
+        customer = Customer.objects.get(pk=customer_primary_key)
         customer.rank = new_rank
         customer.save()
         return customer
-
 
 # represents the Customer class 
 class Customer(models.Model):
