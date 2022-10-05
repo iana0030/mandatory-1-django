@@ -1,10 +1,9 @@
 from django.contrib.auth.models import User
-from random import seed, random
 from django.db import models, transaction
+import random
+from django.db.models import Sum
 
-# seed is used for random method which generates a number for Account
 # BANK_FK is Bank's foreign key used to associate loan accounts with bank and make loan payments in Ledger
-seed(1)
 BANK_FK = 'bank_account_fk'
 
 # after every defined method, that method with the same name is added to Django's User class via User.add_to_class method
@@ -31,9 +30,7 @@ User.add_to_class("create_user", create_user)
 def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key):
     # search for user 
     owner_user = User.objects.get(pk=user_foreign_key)
-    if not owner_user: 
-        return "User couldn't be found."
-    else:
+    if owner_user: 
         customer = Customer.objects.create(
             username = username,
             password = password,
@@ -45,6 +42,7 @@ def create_customer(username, password, first_name, last_name, address, phone_nu
             user = owner_user
         )
         return customer
+    return "User couldn't be found."
 
 User.add_to_class("create_customer", create_customer)
 
@@ -69,8 +67,12 @@ def change_customer_rank(customer_primary_key, new_rank):
 User.add_to_class("change_customer_rank", change_customer_rank)
 
 def create_customer_account(customer_foreign_key):
-    random_account_number = random()*10
-    Account.objects.create(Account, False , customer_foreign_key)
+    random_account_number = random.getrandbits(64)
+    owner_customer = Customer.objects.get(pk=customer_foreign_key)
+    if owner_customer:
+        new_customer_account = Account.create(random_account_number, False, owner_customer)
+        return new_customer_account
+    return "Customer couldn't be found."
 
 User.add_to_class("create_customer_account", create_customer_account)
 
@@ -84,17 +86,15 @@ class Customer(models.Model):
     address = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=20)
     rank = models.CharField(max_length=6)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.id} - {self.username} - {self.password} - {self.first_name} {self.last_name} - {self.address} - {self.phone_number} - {self.rank} - {self.user}"
+        return f"\n{self.id} - {self.username} - {self.password} - {self.first_name} {self.last_name} - {self.address} - {self.phone_number} - {self.rank} - {self.user}"
 
     # retrieves all customer's accounts and accounts' movements  
     def get_customer_movements(foreign_key):
         customer_accounts = Account.objects.filter(customer_fk_id=foreign_key)
-        print(customer_accounts)
         customer_accounts_movements = Ledger.objects.filter(account_id=foreign_key)
-        print(customer_accounts_movements)
         records = [customer_accounts, customer_accounts_movements]
         return records
         
@@ -133,9 +133,20 @@ class Account(models.Model):
         return f"{self.account_id} - {self.account_number} - {self.is_loan} - {self.customer_fk_id}"
 
     @classmethod
+    def create(cls, account_number=account_number, is_loan=is_loan, customer_fk_id=customer_fk_id):
+        new_account = cls.objects.create(
+            account_number  = account_number,
+            is_loan         = is_loan,
+            customer_fk_id  = customer_fk_id
+        )
+        return new_account
+
     @property
-    def balance(cls):
-        return float(cls.objects.all().filter('account_id'==cls.account_id).aggregate(models.Sum('amount')) or 0)
+    def balance(self):
+        print(self)
+        # return float(cls.objects.filter('account_id'==cls.account_id).aggregate(models.Sum('amount')) or 0.00)
+        # return float (cls.objects.filter(ledger__account_id=cls.account_id).aggregate(models.Sum('amount')) or 0.00)
+        return float(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00)
 
 # represents the Ledger class which stores transactions in a way that bulk_create() creates two rows
 # one row is deduction from one account, other row is addition to other account 
@@ -153,8 +164,10 @@ class Ledger(models.Model):
         with transaction.atomic():
             if sender_account.balance >= amount:
                 Ledger.objects.bulk_create([
-                    Ledger(account=sender_account.account_number, amount=-amount, text=text),
-                    Ledger(account=receiver_account.account_number, amount=amount, text=text)
+                    Ledger(account_id=sender_account.account_id, amount=-amount, text=text),
+                    Ledger(account_id=receiver_account.account_id, amount=amount, text=text)
+                    # Ledger(account=sender_account.account_number, amount=-amount, text=text),
+                    # Ledger(account=receiver_account.account_number, amount=amount, text=text)
                 ])
             else:
                 print('Transaction not allowed. Balance too low!')
