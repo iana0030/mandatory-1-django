@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
+from django.db.models import Exists
 from django.db import models, transaction
-import random
 from django.db.models import Sum
+import random
 
 # BANK_FK is Bank's foreign key used to associate loan accounts with bank and make loan payments in Ledger
 BANK_FK = 'bank_account_fk'
@@ -76,6 +77,23 @@ def create_customer_account(customer_foreign_key):
 
 User.add_to_class("create_customer_account", create_customer_account)
 
+# method for creating the Bank User, Bank Customer, Bank Accounts 
+def create_bank():
+    # check if the bank is already created  
+    if User.objects.filter(username="BANK").exists():
+        return "Bank already exists."
+    with transaction.atomic():
+        bank_user = User.create_user("BANK", "BANK@email.com", "BANK_NAME", "BANK_SURNAME")
+        User.create_customer("BANK_USERNAME", "BANK_PASSWORD", "BANK_FN", "BANK_LN", "BANK_ADDRESS", "BANK_PHONE_NR", "gold", bank_user.id)
+        bank_customer_retrieved = Customer.objects.get(username="BANK_USERNAME")
+        User.create_customer_account(bank_customer_retrieved.id)
+        User.create_customer_account(bank_customer_retrieved.id)
+        bank_accounts_retrieved = Account.objects.all()
+        Ledger.create(bank_accounts_retrieved[0], 100000.00, "Initial deposit.")
+        Ledger.create(bank_accounts_retrieved[1], 999999.00, "Initial deposit.")
+
+User.add_to_class("create_bank", create_bank)
+
 # represents the Customer class 
 class Customer(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -93,9 +111,13 @@ class Customer(models.Model):
 
     # retrieves all customer's accounts and accounts' movements  
     def get_customer_movements(foreign_key):
+        # get all customer accounts
         customer_accounts = Account.objects.filter(customer_fk_id=foreign_key)
-        customer_accounts_movements = Ledger.objects.filter(account_id=foreign_key)
-        records = [customer_accounts, customer_accounts_movements]
+        # get transactions those accounts made
+        customer_account_movements = []
+        for customer_account in customer_accounts:
+            customer_account_movements.append(Ledger.objects.filter(account_id=customer_account.account_id))
+        records = [customer_accounts, customer_account_movements]
         return records
         
     # creates the loan account 
@@ -117,7 +139,6 @@ class Customer(models.Model):
         else:
             Ledger.make_transactions(self, BANK_FK, amount, text)
 
-    @classmethod
     def create_loan_account(bank_account_fk):
         random_account_number = random()*10
         Account.create_account(Account, True, bank_account_fk)
@@ -152,13 +173,22 @@ class Account(models.Model):
 # one row is deduction from one account, other row is addition to other account 
 class Ledger(models.Model):
     transaction_id = models.IntegerField(primary_key=True)
-    account_id = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.FloatField()
     time_stamp = models.DateTimeField(auto_now=True)
     text = models.CharField(max_length=200)
 
     def __str__(self):
-        return f"{self.transaction_Id} - {self.account} - {self.amount} -{self.time_stamp} - {self.text}"
+        return f"{self.transaction_id} - {self.account} - {self.amount} -{self.time_stamp} - {self.text}"
+
+    @ classmethod
+    def create(cls, account=account, amount=amount, text=text):
+        new_ledger_row = cls.objects.create(
+            account     = account,
+            amount      = amount, 
+            text        = text
+        )
+        return new_ledger_row 
 
     def make_transactions(sender_account, receiver_account, amount, text):
         with transaction.atomic():
