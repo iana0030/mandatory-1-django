@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Delete Account</title>
-</head>
-<body>
-   <h1>Delete Account</h1>
+{% extends "login_app/base.html" %}
+
+{% block title %} <title>Delete account</title> {% endblock %}
+
+{% block content %}
+
+<h1>Delete Account</h1>
    <hr />
    <form action="{% url 'login_app:delete_account'%}" method="POST">
       {% csrf_token %}
@@ -17,8 +15,5 @@
       <button>Submit</button>
    </form>
    <hr />
-</body>
-</html>
 
-
-
+{% endblock %}
