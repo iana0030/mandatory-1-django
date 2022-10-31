@@ -114,15 +114,22 @@ class Customer(models.Model):
         customer_account_movements = []
         for customer_account in customer_accounts:
             customer_account_movements.append(Ledger.objects.filter(account_id=customer_account.account_id))
-        records = [customer_accounts, customer_account_movements]
+        records = {
+            'customer_accounts': customer_accounts,
+            'customer_account_movements': customer_account_movements
+        }
         return records
         
     # creates the loan account 
     def take_loan(self, amount, text, deposit_account_primary_key):
+        available_accounts = self.get_customer_movements()["customer_accounts"]
+        # check for customer rank and if the customer has available accounts for deposit
         if self.rank == 'basic':
             return "Can't make a loan. User is not of silver or gold rank."
-        elif Customer.get_customer_movements == 0:
-            return "Can't make a loan. User has no accounts to deposit money to."
+        elif available_accounts.count() == 0:
+            return "Customer doesn't have any accounts to deposit money from loan to."
+        elif not available_accounts.get(account_id=deposit_account_primary_key):
+            return "There is no account with such primary key that belongs to this customer."
         else:
             # find deposit account, create loan/withdrawal account then transfer money from one to another
             # in case of error, transaction will ensure ACID
