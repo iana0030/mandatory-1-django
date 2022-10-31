@@ -1,3 +1,4 @@
+from decimal import *
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
@@ -166,17 +167,14 @@ class Account(models.Model):
 
     @property
     def balance(self):
-        print(self)
-        # return float(cls.objects.filter('account_id'==cls.account_id).aggregate(models.Sum('amount')) or 0.00)
-        # return float (cls.objects.filter(ledger__account_id=cls.account_id).aggregate(models.Sum('amount')) or 0.00)
-        return float(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00)
+        return Decimal(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
 
 # represents the Ledger class which stores transactions in a way that bulk_create() creates two rows
 # one row is deduction from one account, other row is addition to other account 
 class Ledger(models.Model):
     transaction_id = models.IntegerField(primary_key=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
     time_stamp = models.DateTimeField(auto_now=True)
     text = models.CharField(max_length=200)
 
@@ -198,8 +196,6 @@ class Ledger(models.Model):
                 Ledger.objects.bulk_create([
                     Ledger(account=sender_account, amount=-amount, text=text),
                     Ledger(account=receiver_account, amount=amount, text=text)
-                    # Ledger(account=sender_account.account_number, amount=-amount, text=text),
-                    # Ledger(account=receiver_account.account_number, amount=amount, text=text)
                 ])
             else:
                 print('Transaction not allowed. Balance too low!')
