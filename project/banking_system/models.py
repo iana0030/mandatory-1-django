@@ -1,4 +1,5 @@
 from decimal import *
+from unicodedata import decimal
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
@@ -121,7 +122,7 @@ class Customer(models.Model):
         return records
         
     # creates the loan account 
-    def take_loan(self, amount, text, deposit_account_primary_key):
+    def take_loan(self, deposit_account_primary_key, amount, text):
         available_accounts = self.get_customer_movements()["customer_accounts"]
         # check for customer rank and if the customer has available accounts for deposit
         if self.rank == 'basic':
@@ -139,14 +140,39 @@ class Customer(models.Model):
                 loan_account = Account.objects.get(account_number=loan_account_account_number)
                 Ledger.make_transactions(loan_account, deposit_account, amount, text)
     
-    # creates the transaction to loan account
-    def pay_loan(self, amount, text):
-        if not self.rank == 'silver' or self.rank == 'gold':
-            return "Can't pay a loan. User is of basic rank."
-        elif Customer.get_customer_movements == 0:
-            return "Can't pay a loan. User has no accounts to pay from."
-        else:
-            Ledger.make_transactions(self, BANK_FK, amount, text)
+    # pays loan to loan account/s
+    # since one customer can take multiple loans, he can pay of one loan partly, one loan entirely and one loan partly or more loans entirely and one loan partly 
+    def pay_loan(self, account_primary_key, amount, text):
+        # check if the user has loans
+        loan_accounts = Account.objects.all().filter(customer_fk_id=self.id).filter(is_loan=True)
+        if not len(loan_accounts):
+            return "Customer doesn't have any loans."
+
+        # get customer's account from where money will be transfered
+        customer_account = Account.objects.get(pk=account_primary_key)
+
+        # validation
+        amount = Decimal(amount)
+        if amount <= Decimal(0.00):
+            return "Amount paid can't be 0.00. Please pay more money."
+        elif amount > customer_account.balance:
+            return "Can't transfer that much money. Insufficient funds."
+             
+        # pay loan on loan accounts
+        for loan_account in loan_accounts:
+            print(f"Start of for loop: {amount}" )
+            if -amount > loan_account.balance:
+                total = loan_account.balance
+                # make transaction from user account to loan account
+                Ledger.make_transactions(customer_account, loan_account, amount, text)
+                return f"Paid {amount} of {total} on {loan_account.account_number} account. Need to pay {loan_account.balance} more."
+            else:
+                # make transaction from user account to loan account fully
+                amount += loan_account.balance
+                Ledger.make_transactions(customer_account, loan_account, -loan_account.balance, text)
+                loan_account.delete()
+        return "End"
+        
 
     def create_loan_account(customer_primary_key):
         random_account_number = random.getrandbits(64)
