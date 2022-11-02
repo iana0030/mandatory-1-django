@@ -160,7 +160,6 @@ class Customer(models.Model):
              
         # pay loan on loan accounts
         for loan_account in loan_accounts:
-            print(f"Start of for loop: {amount}" )
             if -amount > loan_account.balance:
                 total = loan_account.balance
                 # make transaction from user account to loan account
@@ -171,7 +170,7 @@ class Customer(models.Model):
                 amount += loan_account.balance
                 Ledger.make_transactions(customer_account, loan_account, -loan_account.balance, text)
                 loan_account.delete()
-        return "End"
+        return
         
 
     def create_loan_account(customer_primary_key):
