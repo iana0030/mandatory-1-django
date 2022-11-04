@@ -12,7 +12,7 @@ def __str__(self):
     
 User.add_to_class("__str__", __str__)
 
-# method for creating the user
+# create the user
 def create_user(username, email, first_name, last_name):
     user = User.objects.create(
         username = username,
@@ -24,7 +24,7 @@ def create_user(username, email, first_name, last_name):
 
 User.add_to_class("create_user", create_user)
 
-# pass all the arguments for creating the customer and user_foreign_key to connect the customer with the user 
+# create the customer for user  
 def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key):
     # search for user 
     owner_user = User.objects.get(pk=user_foreign_key)
@@ -74,7 +74,8 @@ def create_customer_account(customer_foreign_key):
 
 User.add_to_class("create_customer_account", create_customer_account)
 
-# method for creating the Bank User, Bank Customer, Bank Accounts 
+# create the Bank User, Bank Customer, Bank Accounts 
+# only ran at initial setup or deployment
 def create_bank():
     # check if the bank is already created  
     if User.objects.filter(username="BANK").exists():
@@ -122,6 +123,7 @@ class Customer(models.Model):
         
     # creates the loan account 
     def take_loan(self, deposit_account_primary_key, amount, text):
+        # get customer accounts
         available_accounts = self.get_customer_movements()["customer_accounts"]
         # check for customer rank and if the customer has available accounts for deposit
         if self.rank == 'basic':
@@ -131,8 +133,8 @@ class Customer(models.Model):
         elif not available_accounts.get(account_id=deposit_account_primary_key):
             return "There is no account with such primary key that belongs to this customer."
         else:
-            # find deposit account, create loan/withdrawal account then transfer money from one to another
-            # in case of error, transaction will ensure ACID
+            # find deposit account, create loan/withdrawal account, get loan account after ID is set by Django
+            # then transfer money from one to another in case of error, transaction will ensure ACID
             deposit_account = Account.objects.get(pk=deposit_account_primary_key)
             with transaction.atomic():
                 loan_account_account_number = Customer.create_loan_account(self).account_number
@@ -150,8 +152,10 @@ class Customer(models.Model):
         # get customer's account from where money will be transfered
         customer_account = Account.objects.get(pk=account_primary_key)
 
-        # validation
+        # transform float or integer to Decimal 
         amount = Decimal(amount)
+
+        # validation
         if amount <= Decimal(0.00):
             return "Amount paid can't be 0.00. Please pay more money."
         elif amount > customer_account.balance:
@@ -159,19 +163,22 @@ class Customer(models.Model):
              
         # pay loan on loan accounts
         for loan_account in loan_accounts:
+            # balance on loan accounts will always be negative
             if -amount > loan_account.balance:
+                # total takes snapshot of current loan account balance
                 total = loan_account.balance
                 # make transaction from user account to loan account
                 Ledger.make_transactions(customer_account, loan_account, amount, text)
                 return f"Paid {amount} of {total} on {loan_account.account_number} account. Need to pay {loan_account.balance} more."
             else:
                 # make transaction from user account to loan account fully
+                # if customer wanted to pay loan of 1000 and he is paying loan of 500, then 1000 += -500 
                 amount += loan_account.balance
                 Ledger.make_transactions(customer_account, loan_account, -loan_account.balance, text)
                 loan_account.delete()
         return
         
-
+    # creates loan account and connects it to the customer 
     def create_loan_account(customer_primary_key):
         random_account_number = random.getrandbits(64)
         new_loan_account = Account.create(random_account_number, True, customer_primary_key)
@@ -196,6 +203,7 @@ class Account(models.Model):
         )
         return new_account
 
+    # goes through Ledger table, gets all acounts with particular ID and then aggregates their amount into SUM 
     @property
     def balance(self):
         return Decimal(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
@@ -221,6 +229,9 @@ class Ledger(models.Model):
         )
         return new_ledger_row 
 
+    # uses transaction and bulk_create to insert two rows in Ledger table
+    # first row is sender account sending money, therefore amount being negative
+    # second row is receiver account receiving money, therefore amount being positive
     def make_transactions(sender_account, receiver_account, amount, text):
         with transaction.atomic():
             if sender_account.balance >= amount or sender_account.is_loan == True:
