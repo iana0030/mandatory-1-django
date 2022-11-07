@@ -10,11 +10,13 @@ def index(request):
 def view_all_customers(request):
     if request.method == 'GET':
         customers = User.view_all_customers()
+        
         return render(request, 'banking_system/index.html', {'customers': customers})
 
 def view_all_accounts(request):
     if request.method == 'GET':
         accounts = User.view_all_accounts()
+        
         return render(request, 'banking_system/index.html', {'accounts': accounts})
 
 # POST HTTP methods
@@ -26,6 +28,7 @@ def create_user(request):
         last_name = request.POST['last_name']
 
         new_user = User.create_user(username, email, first_name, last_name)
+        
         return render(request, 'banking_system/index.html', {'new_user': new_user})
 
 def create_customer(request):
@@ -40,4 +43,22 @@ def create_customer(request):
         user_foreign_key = request.POST['user_foreign_key']
 
         new_customer = User.create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key)
+        
         return render(request, 'banking_system/index.html', {'new_customer': new_customer})
+
+def create_customer_account(request):
+    if request.method == 'POST':
+        customer_foreign_key = request.POST['customer_foreign_key']
+
+        new_customer_account = User.create_customer_account(customer_foreign_key)
+
+        return render(request, 'banking_system/index.html', {'new_customer_account': new_customer_account})
+
+# PATCH HTTP methods
+def change_customer_rank(request):
+    if request.method == 'PATCH':
+        customer_primary_key = request.PATCH['customer_primary_key']
+        new_rank = request.PATCH['new_rank']
+        updated_user = User.change_customer_rank(customer_primary_key, new_rank)
+
+        return render(request, 'banking_system/index.html', {'updated_user': updated_user})

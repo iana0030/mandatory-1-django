@@ -49,11 +49,11 @@
 
     <hr>
 
-    <div 
+    {% comment %} <div 
         id="customers_list"
+        hx-swap="outerHTML"
         hx-get="{% url 'banking_system:view_all_customers' %}"
-        hx-trigger="load"
-        hx-target="#customers_list">
+        hx-trigger="load">
         <h3>All customers</h3>
 
         {% if customers %}
@@ -67,9 +67,9 @@
         {% endif %}
     </div>
 
-    <hr>
+    <hr> {% endcomment %}
 
-    <div
+    {% comment %} <div
         id="accounts_list"
         hx-get="{% url 'banking_system:view_all_accounts' %}"
         hx-trigger="load"
@@ -85,6 +85,39 @@
                 {% endfor %}
             </div>
         {% endif %}
+    </div> {% endcomment %}
+
+    {% comment %} <hr>
+
+    <div>
+        <h3>Create Customer Account</h3>
+        <form>
+            <input type="text" name="customer_foreign_key" placeholder="Customer Foreign Key">
+
+            <button
+                hx-post="{% url 'banking_system:create_customer_account' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create
+            </button>
+        </form>
+    </div>  {% endcomment %}
+
+    <hr>
+
+    <div>
+        <h3>Change Customer Rank</h3>
+
+        <form>
+            <input type="text" name="customer_primary_key" placeholder="Customer ID">
+            <input type="text" name="new_rank" placeholder="Rank">
+
+            <button
+                hx-patch="{% url 'banking_system:change_customer_rank' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Change Rank</button>
+        </form>
     </div>
 
 {% endblock %}
