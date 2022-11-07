@@ -4,48 +4,88 @@
 
 {% block content %}
 
-<h2>Some text</h2>
-<p>Remember to add the actual stuff to this page</p>
+    <h2>Some text</h2>
+    <p>Remember to add the actual stuff to this page</p>
 
-<hr>
+    <hr>
 
-<div>
-    <h3>Create User</h3>
-    <form>
-        <input type="text" name="username" placeholder="Username">
-        <input type="text" name="email" placeholder="E-mail Address">
-        <input type="text" name="first_name" placeholder="First Name">
-        <input type="text" name="last_name" placeholder="Last Name">
+    <div>
+        <h3>Create User</h3>
+        <form>
+            <input type="text" name="username" placeholder="Username">
+            <input type="text" name="email" placeholder="E-mail Address">
+            <input type="text" name="first_name" placeholder="First Name">
+            <input type="text" name="last_name" placeholder="Last Name">
 
-        <button
-            hx-post="{% url 'banking_system:create_user' %}"
-            hx-trigger="click"
-            hx-swap="none"
-            >Create</button> 
-    </form>
-</div>
+            <button
+                hx-post="{% url 'banking_system:create_user' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create</button> 
+        </form>
+    </div>
 
-<hr>
+    <hr>
 
-<div>
-    <h3>Create Customer</h3>
-    <form>
-        <input type="text" name="username" placeholder="Username">
-        <input type="text" name="password" placeholder="Password">
-        <input type="text" name="first_name" placeholder="First Name">
-        <input type="text" name="last_name" placeholder="Last Name">
-        <input type="text" name="address" placeholder="Address">
-        <input type="text" name="phone_number" placeholder="Phone Number">
-        <input type="text" name="rank" placeholder="Rank">
-        <input type="text" name="user_foreign_key" placeholder="User ID">
+    <div>
+        <h3>Create Customer</h3>
+        <form>
+            <input type="text" name="username" placeholder="Username">
+            <input type="text" name="password" placeholder="Password">
+            <input type="text" name="first_name" placeholder="First Name">
+            <input type="text" name="last_name" placeholder="Last Name">
+            <input type="text" name="address" placeholder="Address">
+            <input type="text" name="phone_number" placeholder="Phone Number">
+            <input type="text" name="rank" placeholder="Rank">
+            <input type="text" name="user_foreign_key" placeholder="User ID">
 
-        <button
-            hx-post="{% url 'banking_system:create_customer' %}"
-            hx-trigger="click"
-            hx-swap="none"
-            >Create</button> 
-    </form>
-</div>
+            <button
+                hx-post="{% url 'banking_system:create_customer' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create</button> 
+        </form>
+    </div>
+
+    <hr>
+
+    <div 
+        id="customers_list"
+        hx-get="{% url 'banking_system:view_all_customers' %}"
+        hx-trigger="load"
+        hx-target="#customers_list">
+        <h3>All customers</h3>
+
+        {% if customers %}
+            <div>
+                {% for customer in customers %}
+                    <div>
+                        <p>{{ customer.first_name }} {{ customer.last_name}} {{ customer.address }} {{ customer.phone_number }} {{ customer.rank}}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <div
+        id="accounts_list"
+        hx-get="{% url 'banking_system:view_all_accounts' %}"
+        hx-trigger="load"
+        hx-target="#accounts_list">
+        <h3>All Accounts</h3>
+
+        {% if accounts %}
+            <div>
+                {% for account in accounts %}
+                    <div>
+                        <p>{{ account.number }} {{ account.is_loan }} {{ account.customer_fk_id_id }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 
 {% endblock %}
 

@@ -6,6 +6,18 @@ def index(request):
     return render(request, 'banking_system/index.html', {})
 
 # USER methods
+# GET HTTP methods
+def view_all_customers(request):
+    if request.method == 'GET':
+        customers = User.view_all_customers()
+        return render(request, 'banking_system/index.html', {'customers': customers})
+
+def view_all_accounts(request):
+    if request.method == 'GET':
+        accounts = User.view_all_accounts()
+        return render(request, 'banking_system/index.html', {'accounts': accounts})
+
+# POST HTTP methods
 def create_user(request):
     if request.method == 'POST':
         username = request.POST['username']
