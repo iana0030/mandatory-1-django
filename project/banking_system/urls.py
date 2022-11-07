@@ -5,4 +5,7 @@ app_name = "banking_system"
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('account_details/<int:pk>/', views.view_account_details, name='account_details'),
+
+    path('create_customer_account/', views.create_customer_account, name="create_customer_account"),
 ]

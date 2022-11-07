@@ -1,0 +1,47 @@
+{% extends "banking_system/base.html" %}
+
+{% block title %} <title>Account Details</title> {% endblock %}
+
+{% block content %}
+
+<section>
+    <table>
+        <h3>Your Account: {{ account.account_number }}</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Account Id</th>
+                    <th>Account Number</th>
+                    <th>Account Balance</th>
+                </tr>
+                <tr>
+                    <td>{{ account.account_id }}</td>
+                    <td>{{ account.account_number }}</td>
+                    <td>{{ account.balance }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+        <h3>Your account movements</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Transaction Id</th>
+                    <th>Amount Transferred</th>
+                    <th>Transfer Time</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+</section>
+{% endblock %}
+

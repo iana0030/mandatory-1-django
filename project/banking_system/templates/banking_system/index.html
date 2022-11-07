@@ -1,11 +1,47 @@
 {% extends "banking_system/base.html" %}
 
-{% block title %} <title>Test index</title> {% endblock %}
+{% block title %} <title>Dashboard</title> {% endblock %}
 
 {% block content %}
 
 <h2>Some text</h2>
 <p>Remember to add the actual stuff to this page</p>
 
+
+
+<hr>
+<section>
+    <table>
+        <h3>Your Accounts</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Account Id</th>
+                    <th>Account Number</th>
+                    <th>Account Balance</th>
+                </tr>
+                {% for account in accounts %}
+                <tr>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_id }}</a></td>
+                    <td>{{ account.account_number }}</td>
+                    <td>{{ account.balance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <form>
+                <input type="text" name="account_name" placeholder="Account name" />
+                <button
+                        hx-post="{% url 'banking_system:create_customer_account' %}"
+                        hx-trigger="click"
+                        hx-swap="none"
+                        target="html"
+                        >Create new account
+                </button>
+            </form>
+        </div>
+</section>
 {% endblock %}
 
