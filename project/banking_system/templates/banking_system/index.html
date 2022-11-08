@@ -49,45 +49,31 @@
 
     <hr>
 
-    {% comment %} <div 
-        id="customers_list"
-        hx-swap="outerHTML"
-        hx-get="{% url 'banking_system:view_all_customers' %}"
-        hx-trigger="load">
-        <h3>All customers</h3>
+    <section>
+        <h3>All Customers</h3>
 
-        {% if customers %}
-            <div>
-                {% for customer in customers %}
-                    <div>
-                        <p>{{ customer.first_name }} {{ customer.last_name}} {{ customer.address }} {{ customer.phone_number }} {{ customer.rank}}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+        <div
+            id="customers-list"
+            hx-target="#customers-list"
+            hx-get="{% url 'banking_system:view_all_customers' %}"
+            hx-trigger="load">
+        </div>
+    </section>
 
-    <hr> {% endcomment %}
+    <hr>
 
-    {% comment %} <div
-        id="accounts_list"
-        hx-get="{% url 'banking_system:view_all_accounts' %}"
-        hx-trigger="load"
-        hx-target="#accounts_list">
+    <section>
         <h3>All Accounts</h3>
 
-        {% if accounts %}
-            <div>
-                {% for account in accounts %}
-                    <div>
-                        <p>{{ account.number }} {{ account.is_loan }} {{ account.customer_fk_id_id }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div> {% endcomment %}
+        <div
+            id="accounts-list"
+            hx-target="#accounts-list"
+            hx-get="{% url 'banking_system:view_all_accounts' %}"
+            hx-trigger="load">
+        </div>
+    </section>
 
-    {% comment %} <hr>
+    <hr>
 
     <div>
         <h3>Create Customer Account</h3>
@@ -101,7 +87,7 @@
                 >Create
             </button>
         </form>
-    </div>  {% endcomment %}
+    </div>
 
     <hr>
 
