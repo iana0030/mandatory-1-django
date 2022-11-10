@@ -188,7 +188,7 @@ class Customer(models.Model):
 class Account(models.Model):
     account_id = models.IntegerField(primary_key=True)
     account_name = models.CharField(max_length=30)
-    account_number = random.getrandbits(64)
+    account_number = models.CharField(max_length=30)
     is_loan = models.BooleanField(default=False)
     customer_fk_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
