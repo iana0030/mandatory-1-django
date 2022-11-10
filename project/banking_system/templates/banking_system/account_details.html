@@ -31,14 +31,16 @@
                 <tr>
                     <th>Transaction Id</th>
                     <th>Amount Transferred</th>
-                    <th>Transfer Time</th>
                     <th>Description</th>
+                    <th>Transfer Time</th>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    {% for account_movement in account_movements %}
+                    <td>{{ account_movement.transaction_id }}</td>
+                    <td>{{ account_movement.amount }}</td>
+                    <td>{{ account_movement.text }}</td>
+                    <td>{{ account_movement.time_stamp }}</td>
+                    {% endfor %}
                 </tr>
             </tbody>
         </table>

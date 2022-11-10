@@ -27,6 +27,8 @@
                     <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_name }}</a></td>
                     <td>{{ account.account_number }}</td>
                     <td>{{ account.balance }}</td>
+
+                    <td>{{ account.customer_fk_id.id }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -34,13 +36,14 @@
 
         <div>
             <form>
+                {% csrf_token %}
                 <input type="text" name="account_name" placeholder="Account name" />
                 <button
-                        hx-post="{% url 'banking_system:create_customer_account' %}"
+                        hx-post="{% url 'banking_system:create_account' %}"
                         hx-trigger="click"
                         hx-swap="none"
                         target="html"
-                        >Create new account
+                        >Create loan account
                 </button>
             </form>
         </div>
