@@ -17,12 +17,14 @@
             <tbody>
                 <tr>
                     <th>Account Id</th>
+                    <th>Account Name</th>
                     <th>Account Number</th>
                     <th>Account Balance</th>
                 </tr>
                 {% for account in accounts %}
                 <tr>
                     <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_id }}</a></td>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_name }}</a></td>
                     <td>{{ account.account_number }}</td>
                     <td>{{ account.balance }}</td>
                 </tr>
