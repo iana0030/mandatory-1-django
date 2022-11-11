@@ -7,5 +7,44 @@
 <h2>Some text</h2>
 <p>Remember to add the actual stuff to this page</p>
 
-{% endblock %}
+<div>
+    <h3> Make Transactions</h3>
+    <form>
+        <input type="number" name="sender_account_id" placeholder="Sender Account Number">
+        <input type="number" name="receiver_account_id" placeholder="Receiver Account Number">
+        <input type="number" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Text">
 
+        <button hx-post="{% url 'banking_system:make_transactions' %}" hx-trigger="click" hx-swap="none">
+            Create Transaction
+        </button>
+    </form>
+    <br>
+    <hr> 
+            <form>
+
+                <form>
+                    <table>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Amount</th>
+                            <th>Text</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </form>
+
+                <br>
+                <hr>
+
+                <div id="ledger_list" hx-target="#ledger_list" hx-get="{% url 'banking_system:ledger_list' %}"
+                    hx-trigger="load">
+
+                </div>
+
+</div>
+{% endblock %}

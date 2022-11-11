@@ -235,10 +235,12 @@ class Ledger(models.Model):
     def make_transactions(sender_account, receiver_account, amount, text):
         with transaction.atomic():
             if sender_account.balance >= amount or sender_account.is_loan == True:
-                Ledger.objects.bulk_create([
-                    Ledger(account=sender_account, amount=-amount, text=text),
-                    Ledger(account=receiver_account, amount=amount, text=text)
-                ])
+                #Ledger.objects.bulk_create([
+                    #Ledger(account=sender_account, amount=-Decimal(amount), text=text),
+                   # Ledger(account=receiver_account, amount=Decimal(amount), text=text)
+                #])
+                Ledger.create(sender_account, -Decimal(amount), text)
+                Ledger.create(receiver_account, Decimal(amount), text)
             else:
                 print('Transaction not allowed. Balance too low!')
 
