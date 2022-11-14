@@ -1,9 +1,6 @@
 from django.contrib import admin
-from .models import User, Customer, Ledger, Account
+from .models import Customer, Account, Ledger
 
 admin.site.register(Customer)
-admin.site.register(Ledger)
 admin.site.register(Account)
-
-
-# Register your models here.
+admin.site.register(Ledger)
