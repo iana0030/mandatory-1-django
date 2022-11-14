@@ -1,0 +1,9 @@
+<div id="customers-list">
+    {% if customers %}
+        {% for customer in customers %}
+            <div id="customer">
+                <div> {{ customer.first_name }} {{ customer.last_name}} {{ customer.address }} {{ customer.phone_number }} {{ customer.rank}} </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
