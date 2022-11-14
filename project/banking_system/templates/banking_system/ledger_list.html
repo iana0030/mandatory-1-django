@@ -1,0 +1,12 @@
+<div id="ledger-list">
+    {% if ledger %}
+    {% for ledger_row in ledger %}
+    <div id="ledger">
+        <p> {{ ledger_row.amount }} {{ledger_row.text}}</p>
+
+    </div>
+
+    {% endfor %}
+
+    {% endif %}
+</div>

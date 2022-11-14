@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
-        <script src="https://kit.fontawesome.com/815e91b325.js" crossorigin="anonymous"></script>
-        {% block title %} {% endblock %}
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css" />
+    <script src="https://kit.fontawesome.com/815e91b325.js" crossorigin="anonymous"></script>
+    {% block title %} {% endblock %}
+</head>
 
+<body>
+    <nav>
+        <a href="{% url 'login_app:logout' %}">Log out</a>
+    </nav>
+
+    <h1>Bank</h1>
+    <p>Welcome {{ user }}</p>
+    
     <body>
         <nav>
             <a href="{% url 'banking_system:index' %}">Home</a>
@@ -31,5 +39,3 @@
         </script>
     </body>
 </html>
-
-
