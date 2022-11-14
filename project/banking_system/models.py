@@ -60,7 +60,7 @@ def change_customer_rank(customer_primary_key, new_rank):
     customer = Customer.objects.get(pk=customer_primary_key)
     customer.rank = new_rank
     customer.save()
-    return customer
+    return Customer.objects.get(pk=customer_primary_key)
 
 User.add_to_class("change_customer_rank", change_customer_rank)
 
