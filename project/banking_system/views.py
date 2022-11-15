@@ -90,6 +90,17 @@ def view_all_accounts(request):
         
         return render(request, 'banking_system/accounts_list_partial.html', {'accounts': accounts})
 
+def get_customer_movements(request, pk):
+    if request.method == 'GET':
+        customer_movements = Customer.get_customer_movements(pk)
+        return render(request, 'banking_system/customer_movements_partial.html', 
+            {
+                'customer_accounts': customer_movements['customer_accounts'], 
+                'customer_account_movements': customer_movements['customer_account_movements']
+            }
+        )
+    
+
 # POST HTTP methods
 def create_user(request):
     if request.method == 'POST':
@@ -124,6 +135,28 @@ def create_customer_account(request):
         new_customer_account = User.create_customer_account(customer_foreign_key)
 
         return render(request, 'banking_system/index.html', {'new_customer_account': new_customer_account})
+
+def take_loan(request):
+    if request.method == 'POST':
+        deposit_account_primary_key = request.POST['deposit_account_primary_key']
+        amount = Decimal(request.POST['amount'])
+        text = request.POST['text']
+        customer = Customer.objects.get(pk=1)
+        
+        loan_account = customer.take_loan(deposit_account_primary_key, amount, text)
+        
+        return render(request, 'banking_system/index.html', {'loan_account':loan_account})
+
+def pay_loan(request):
+    if request.method == 'POST':
+        account_primary_key = request.POST.get('account_primary_key')
+        amount = Decimal(request.POST.get('amount'))
+        text = request.POST.get('text')
+        customer = Customer.objects.get(pk=1)
+            
+        customer.pay_loan(account_primary_key, amount, text)
+            
+        return render(request, 'banking_system/pay_loan')
 
 # PATCH HTTP methods
 def change_customer_rank(request):

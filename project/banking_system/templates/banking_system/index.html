@@ -189,4 +189,50 @@
 
 </div>
 
+<hr>
+
+<section>
+    <h3>All Customer Movements</h3>
+    <div
+        id="customer-movements-list"
+        hx-target="#customer-movements-list"
+        hx-get="{% url 'banking_system:get_customer_movements' 1 %}"
+        hx-trigger="load">
+    </div>
+</section> 
+
+<hr>
+
+<hr>
+    <div>
+        <h3>Take Loan</h3>
+        <form>
+            <input type="text" name="deposit_account_primary_key" placeholder="Account ID">
+            <input type="text" name="amount" placeholder="Amount">
+            <input type="text" name="text" placeholder="Description">
+
+            <button
+                hx-post="{% url 'banking_system:take_loan' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Submit</button> 
+        </form>
+    </div>
+<hr>
+
+<div>
+    <h3>Pay Loan</h3>
+    <form>
+        <input type="text" name="account_primary_key" placeholder="Account Number">
+        <input type="text" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Description">
+
+        <button
+            hx-post="{% url 'banking_system:pay_loan' %}"
+            hx-trigger="click"
+            hx-swap="none"
+            >Submit</button> 
+    </form>
+</div>
+
 {% endblock %}

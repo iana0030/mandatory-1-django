@@ -66,11 +66,8 @@ User.add_to_class("change_customer_rank", change_customer_rank)
 
 def create_customer_account(customer_foreign_key):
     random_account_number = random.getrandbits(64)
-    owner_customer = Customer.objects.get(pk=customer_foreign_key)
-    if owner_customer:
-        new_customer_account = Account.create(random_account_number, False, owner_customer)
-        return new_customer_account
-    return "Customer couldn't be found."
+    new_customer_account = Account.create(random_account_number, False, customer_foreign_key)
+    return new_customer_account
 
 User.add_to_class("create_customer_account", create_customer_account)
 
@@ -114,7 +111,9 @@ class Customer(models.Model):
         # get transactions those accounts made
         customer_account_movements = []
         for customer_account in customer_accounts:
-            customer_account_movements.append(Ledger.objects.filter(account_id=customer_account.account_id))
+            customer_movements_queryset = Ledger.objects.filter(account_id=customer_account.account_id)
+            for customer_account_movement in customer_movements_queryset:
+                customer_account_movements.append(customer_account_movement)
         records = {
             'customer_accounts': customer_accounts,
             'customer_account_movements': customer_account_movements
@@ -137,7 +136,7 @@ class Customer(models.Model):
             # then transfer money from one to another in case of error, transaction will ensure ACID
             deposit_account = Account.objects.get(pk=deposit_account_primary_key)
             with transaction.atomic():
-                loan_account_account_number = Customer.create_loan_account(self).account_number
+                loan_account_account_number = Customer.create_loan_account(self.id).account_number
                 loan_account = Account.objects.get(account_number=loan_account_account_number)
                 Ledger.make_transactions(loan_account, deposit_account, amount, text)
 
@@ -181,7 +180,7 @@ class Customer(models.Model):
     # creates loan account and connects it to the customer
     def create_loan_account(customer_primary_key):
         random_account_number = random.getrandbits(64)
-        new_loan_account = Account.create(random_account_number, True, customer_primary_key)
+        new_loan_account = Account.create("Name", random_account_number, True, customer_primary_key)
         return new_loan_account
 
 # represents Account class which can belong to one Customer
@@ -197,11 +196,12 @@ class Account(models.Model):
 
     @classmethod
     def create(cls, account_name=account_name, account_number=account_number, is_loan=is_loan, customer_fk_id=customer_fk_id):
+        customer = Customer.objects.get(pk=customer_fk_id)
         new_account = cls.objects.create(
             account_name    = account_name,
             account_number  = account_number,
             is_loan         = is_loan,
-            customer_fk_id  = customer_fk_id
+            customer_fk_id  = customer
         )
         return new_account
 
