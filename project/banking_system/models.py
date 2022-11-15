@@ -1,18 +1,17 @@
 from decimal import *
+import random
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
-import random
 
-# after every defined method, that method with the same name is added to Django's User class via User.add_to_class method
 
 # represents the User class which is used by bank employees for administration or by regular customers
 def __str__(self):
-    return f"{self.id} - {self.username} - {self.email} - {self.first_name} - {self.last_name}"
+    return f"ID: {self.id} | SURNAME: {self.username} | EMAIL: {self.email} | FIRST NAME: {self.first_name} | LAST NAME: {self.last_name}"
 
-User.add_to_class("__str__", __str__)
 
-# create the user
+# creates the user
+# User.create("username", "email", "first_name", "last_name")
 def create_user(username, email, first_name, last_name):
     user = User.objects.create(
         username = username,
@@ -22,13 +21,13 @@ def create_user(username, email, first_name, last_name):
     )
     return user
 
-User.add_to_class("create_user", create_user)
 
-# create the customer for user
-def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key):
+# creates the customer for user
+# User.create_customer("username", "password", "first_name", "last_name", "address", "phone_number", "rank", user_primary_key)
+def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_primary_key):
     # search for user
-    owner_user = User.objects.get(pk=user_foreign_key)
-    if owner_user:
+    try:
+        owner_user = User.objects.get(pk=user_primary_key)
         customer = Customer.objects.create(
             username = username,
             password = password,
@@ -40,54 +39,46 @@ def create_customer(username, password, first_name, last_name, address, phone_nu
             user = owner_user
         )
         return customer
-    return "User couldn't be found."
+    except User.DoesNotExist:
+        return f"User with ID {user_primary_key} does not exist." 
 
-User.add_to_class("create_customer", create_customer)
 
+# User.view_all_customers()
 def view_all_customers():
     all_customers = Customer.objects.all()
     return all_customers
 
-User.add_to_class("view_all_customers", view_all_customers)
 
+# User.view_all_accounts()
 def view_all_accounts():
     all_accounts = Account.objects.all()
     return all_accounts
 
-User.add_to_class("view_all_accounts", view_all_accounts)
 
+# User.change_customer_rank(customer_primary_key, "new_rank")
 def change_customer_rank(customer_primary_key, new_rank):
     customer = Customer.objects.get(pk=customer_primary_key)
     customer.rank = new_rank
     customer.save()
     return Customer.objects.get(pk=customer_primary_key)
 
-User.add_to_class("change_customer_rank", change_customer_rank)
 
-def create_customer_account(customer_foreign_key):
+# User.create_customer_account(customer_primary_key, "account_name")
+def create_customer_account(customer_primary_key, account_name):
     random_account_number = random.getrandbits(64)
-    new_customer_account = Account.create(random_account_number, False, customer_foreign_key)
+    new_customer_account = Account.create(account_name, random_account_number, False, customer_primary_key)
     return new_customer_account
 
+
+User.add_to_class("__str__", __str__)
+User.add_to_class("create_user", create_user)
+User.add_to_class("create_customer", create_customer)
+User.add_to_class("view_all_customers", view_all_customers)
+User.add_to_class("view_all_accounts", view_all_accounts)
+User.add_to_class("change_customer_rank", change_customer_rank)
 User.add_to_class("create_customer_account", create_customer_account)
 
-# create the Bank User, Bank Customer, Bank Accounts
-# only ran at initial setup or deployment
-def create_bank():
-    # check if the bank is already created
-    if User.objects.filter(username="BANK").exists():
-        return "Bank already exists."
-    with transaction.atomic():
-        bank_user = User.create_user("BANK", "BANK@email.com", "BANK_NAME", "BANK_SURNAME")
-        User.create_customer("BANK_USERNAME", "BANK_PASSWORD", "BANK_FN", "BANK_LN", "BANK_ADDRESS", "BANK_PHONE_NR", "gold", bank_user.id)
-        bank_customer_retrieved = Customer.objects.get(username="BANK_USERNAME")
-        User.create_customer_account(bank_customer_retrieved.id)
-        User.create_customer_account(bank_customer_retrieved.id)
-        bank_accounts_retrieved = Account.objects.all()
-        Ledger.create(bank_accounts_retrieved[0], 100000.00, "Initial deposit.")
-        Ledger.create(bank_accounts_retrieved[1], 999999.00, "Initial deposit.")
 
-User.add_to_class("create_bank", create_bank)
 
 # represents the Customer class
 class Customer(models.Model):
