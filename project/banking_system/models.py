@@ -230,16 +230,16 @@ class Account(models.Model):
 # one row is deduction from one account, other row is addition to other account
 class Ledger(models.Model):
     transaction_id = models.IntegerField(primary_key=True)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     time_stamp = models.DateTimeField(auto_now=True)
     text = models.CharField(max_length=200)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.transaction_id} - {self.account} - {self.amount} -{self.time_stamp} - {self.text}"
+        return f"ID: {self.transaction_id} | ACCOUNT: {self.account} | AMOUNT: {self.amount} | CREATED_AT: {self.time_stamp} | TEXT: {self.text}"
 
     @ classmethod
-    def create(cls, account=account, amount=amount, text=text):
+    def create(cls, account, amount, text):
         new_ledger_row = cls.objects.create(
             account     = account,
             amount      = amount,
@@ -247,16 +247,15 @@ class Ledger(models.Model):
         )
         return new_ledger_row
 
-    # uses transaction and bulk_create to insert two rows in Ledger table
+    # uses transaction and create to insert two rows in Ledger table
     # first row is sender account sending money, therefore amount being negative
     # second row is receiver account receiving money, therefore amount being positive
+    # sender_account = Account.objects.get(pk=ID)
+    # receiver_account = Account.objects.get(pk=ID)
+    # Ledger.make_transactions(sender_account, receiver_account, 100, "Money")
     def make_transactions(sender_account, receiver_account, amount, text):
         with transaction.atomic():
             if sender_account.balance >= amount or sender_account.is_loan == True:
-                #Ledger.objects.bulk_create([
-                    #Ledger(account=sender_account, amount=-Decimal(amount), text=text),
-                   # Ledger(account=receiver_account, amount=Decimal(amount), text=text)
-                #])
                 Ledger.create(sender_account, -Decimal(amount), text)
                 Ledger.create(receiver_account, Decimal(amount), text)
             else:
