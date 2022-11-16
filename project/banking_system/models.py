@@ -95,9 +95,7 @@ class Customer(models.Model):
 
     
     def __str__(self):
-        return f"""ID {self.id} | USERNAME: {self.username} | PASSWORD: {self.password} | FIRST NAME {self.first_name} 
-            | LAST NAME: {self.last_name} | ADDRESS: {self.address} | PHONE NUMBER {self.phone_number} 
-            | RANK {self.rank} | USER_ID: {self.user.id}"""
+        return f"ID {self.id} | USERNAME: {self.username} | PASSWORD: {self.password} | FIRST NAME {self.first_name} | LAST NAME: {self.last_name} | ADDRESS: {self.address} | PHONE NUMBER: {self.phone_number} | RANK: {self.rank} | USER_ID: {self.user.id}"
 
     
     # retrieves all customer's accounts and accounts' movements
@@ -198,30 +196,35 @@ class Customer(models.Model):
 
 # represents Account class which can belong to one Customer
 class Account(models.Model):
-    account_id = models.IntegerField(primary_key=True)
-    account_name = models.CharField(max_length=30)
-    account_number = models.CharField(max_length=30)
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=30)
+    number = models.CharField(max_length=30)
     is_loan = models.BooleanField(default=False)
-    customer_fk_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.account_id} - {self.account_name} - {self.account_number} - {self.is_loan} - {self.customer_fk_id}"
+        return f"ID: {self.id} | NAME: {self.name} | NUMBER: {self.number} | IS LOAN: {self.is_loan} | CUSTOMER: {self.customer}"
 
+    # creates new Account in Account table 
+    # Account.create("Main", "12131", False, CUSTOMER ID)
     @classmethod
-    def create(cls, account_name=account_name, account_number=account_number, is_loan=is_loan, customer_fk_id=customer_fk_id):
-        customer = Customer.objects.get(pk=customer_fk_id)
+    def create(cls, name, number, is_loan, customer_primary_key):
+        customer = Customer.objects.get(pk=customer_primary_key)
         new_account = cls.objects.create(
-            account_name    = account_name,
-            account_number  = account_number,
-            is_loan         = is_loan,
-            customer_fk_id  = customer
+            name     = name,
+            number   = number,
+            is_loan  = is_loan,
+            customer = customer
         )
         return new_account
 
     # goes through Ledger table, gets all acounts with particular ID and then aggregates their amount into SUM
+    # Account.objects.get(pk=ID).balance
+    # or you can assign Account to variable like "account" 
+    # and then do account.balance
     @property
     def balance(self):
-        return Decimal(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
+        return Decimal(Ledger.objects.filter(account_id=self.id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
 
 # represents the Ledger class which stores transactions in a way that bulk_create() creates two rows
 # one row is deduction from one account, other row is addition to other account
