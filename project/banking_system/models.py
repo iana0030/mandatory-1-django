@@ -70,6 +70,7 @@ def create_customer_account(customer_primary_key, account_name):
     return new_customer_account
 
 
+# Add defined methods to the User
 User.add_to_class("__str__", __str__)
 User.add_to_class("create_user", create_user)
 User.add_to_class("create_customer", create_customer)
@@ -92,29 +93,44 @@ class Customer(models.Model):
     rank = models.CharField(max_length=6)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    
     def __str__(self):
-        return f"{self.id} - {self.username} - {self.password} - {self.first_name} {self.last_name} - {self.address} - {self.phone_number} - {self.rank} - {self.user}"
+        return f"""ID {self.id} | USERNAME: {self.username} | PASSWORD: {self.password} | FIRST NAME {self.first_name} 
+            | LAST NAME: {self.last_name} | ADDRESS: {self.address} | PHONE NUMBER {self.phone_number} 
+            | RANK {self.rank} | USER_ID: {self.user.id}"""
 
+    
     # retrieves all customer's accounts and accounts' movements
-    def get_customer_movements(foreign_key):
+    # Customer.objects.get(pk=ID).get_customer_balance()
+    # or assign Customer.objects.get(pk=ID) to variable like "customer"
+    # customer.get_customer_movement()
+    def get_customer_movements(self):
         # get all customer accounts
-        customer_accounts = Account.objects.filter(customer_fk_id=foreign_key)
+        customer_accounts = Account.objects.filter(customer_fk_id=self.id)
         # get transactions those accounts made
-        customer_account_movements = []
+        customer_account_movements = list()
         for customer_account in customer_accounts:
+            # for each Account Customer owns get Ledger rows (transactions)
             customer_movements_queryset = Ledger.objects.filter(account_id=customer_account.account_id)
+            
+            # put each Ledger row (transaction) in list
             for customer_account_movement in customer_movements_queryset:
                 customer_account_movements.append(customer_account_movement)
+
         records = {
             'customer_accounts': customer_accounts,
             'customer_account_movements': customer_account_movements
         }
         return records
 
-    # creates the loan account
+    # creates the loan account for the customer
+    # Customer.objects.get(pk=ID).take_loan(ACCOUNT_ID, 100, "Money")
+    # or assign Customer.objects.get(pk=ID) to variable like "customer"
+    # customer.take_loan(ACCOUNT_ID, 100, "Money")
     def take_loan(self, deposit_account_primary_key, amount, text):
         # get customer accounts
         available_accounts = self.get_customer_movements()["customer_accounts"]
+
         # check for customer rank and if the customer has available accounts for deposit
         if self.rank == 'basic':
             return "Can't make a loan. User is not of silver or gold rank."
@@ -132,7 +148,11 @@ class Customer(models.Model):
                 Ledger.make_transactions(loan_account, deposit_account, amount, text)
 
     # pays loan to loan account/s
-    # since one customer can take multiple loans, he can pay of one loan partly, one loan entirely and one loan partly or more loans entirely and one loan partly
+    # since one customer can take multiple loans, he can pay of one loan partly, 
+    # one loan entirely and one loan partly or more loans entirely and one loan partly
+    # Customer.objects.get(pk=ID).pay_loan(ACCOUNT_ID, 100, "Money")
+    # or assign Customer.objects.get(pk=ID) to variable like "customer"
+    # customer.pay_loan(ACCOUNT_ID, 100, "Money")
     def pay_loan(self, account_primary_key, amount, text):
         # check if the user has loans
         loan_accounts = Account.objects.all().filter(customer_fk_id=self.id).filter(is_loan=True)
@@ -157,8 +177,10 @@ class Customer(models.Model):
             if -amount > loan_account.balance:
                 # total takes snapshot of current loan account balance
                 total = loan_account.balance
+
                 # make transaction from user account to loan account
                 Ledger.make_transactions(customer_account, loan_account, amount, text)
+
                 return f"Paid {amount} of {total} on {loan_account.account_number} account. Need to pay {loan_account.balance} more."
             else:
                 # make transaction from user account to loan account fully
@@ -171,7 +193,7 @@ class Customer(models.Model):
     # creates loan account and connects it to the customer
     def create_loan_account(customer_primary_key):
         random_account_number = random.getrandbits(64)
-        new_loan_account = Account.create("Name", random_account_number, True, customer_primary_key)
+        new_loan_account = Account.create(f"LOAN{random_account_number}", random_account_number, True, customer_primary_key)
         return new_loan_account
 
 # represents Account class which can belong to one Customer
