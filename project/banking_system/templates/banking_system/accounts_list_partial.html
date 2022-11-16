@@ -3,7 +3,7 @@
         <div>
             {% for account in accounts %}
                 <div>
-                    <p>{{ account.account_number }} {{ account.is_loan }} {{ account.customer_fk_id_id }}</p>
+                    <p>{{ account.number }} {{ account.is_loan }} {{ account.customer_id }}</p>
                 </div>
             {% endfor %}
         </div>

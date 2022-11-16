@@ -3,7 +3,7 @@
     {% if customer_accounts %}
         {% for customer_account in customer_accounts %}
             <div id="customer_account">
-                {{ customer_account.account_id }} {{ customer_account.account_name }} {{ customer_account.account_number }} {{ customer_account.is_loan }}
+                {{ customer_account.id }} {{ customer_account.name }} {{ customer_account.number }} {{ customer_account.is_loan }}
             <div> 
         {% endfor %}
     {% endif %}
