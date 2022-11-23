@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
     # Local
     'http_patch_parsing.middleware.HttpPatchParsingMiddleware',
 ]
@@ -118,6 +118,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Login urls
+LOGIN_REDIRECT_URL = '/user-accounts/login'
+LOGOUT_REDIRECT_URL = '/user-accounts/logout'
+LOGIN_URL = '/user-accounts/login'
+LOGOUT_URL = 'user-accounts/logout'
+
+
+# Media files
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

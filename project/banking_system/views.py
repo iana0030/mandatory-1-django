@@ -2,8 +2,11 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render
 from .models import Ledger, Customer, Account, User
 from decimal import *
+from django.contrib.auth.decorators import login_required
+
 
 # GET HTTP methods
+@login_required
 def index(request):
     # VIEWING ACCOUNTS
     if request.method == "GET":
@@ -16,6 +19,8 @@ def index(request):
 
         return render(request, 'banking_system/index.html', context)
 
+
+@login_required
 def view_account_details(request, pk):
     account = get_object_or_404(Account, pk=pk)
     customer_movements = Customer.get_customer_movements(foreign_key=pk)
@@ -29,31 +34,39 @@ def view_account_details(request, pk):
 
     return render(request, 'banking_system/account_details.html', context)
 
+
+@login_required
 def ledger_list(request):
     if request.method == 'GET':
         ledger = Ledger.objects.all()
         return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
 
+
+@login_required
 def view_all_customers(request):
     if request.method == 'GET':
         customers = User.view_all_customers()
-        
+
         return render(request, 'banking_system/customers_list_partial.html', {'customers': customers})
 
+
+@login_required
 def view_all_accounts(request):
     if request.method == 'GET':
         accounts = User.view_all_accounts()
-        
+
         return render(request, 'banking_system/accounts_list_partial.html', {'accounts': accounts})
 
+
+@login_required
 def get_customer_movements(request, pk):
     if request.method == 'GET':
         customer = get_object_or_404(Customer, pk=pk)
         customer_movements = customer.get_customer_movements()
-        
-        return render(request, 'banking_system/customer_movements_partial.html', 
+
+        return render(request, 'banking_system/customer_movements_partial.html',
             {
-                'customer_accounts': customer_movements['customer_accounts'], 
+                'customer_accounts': customer_movements['customer_accounts'],
                 'customer_account_movements': customer_movements['customer_account_movements']
             }
         )
@@ -99,7 +112,7 @@ def create_ledger_row(request):
         account = Account.objects.get(pk=account_id)
         new_ledger_row = Ledger.create(account, amount, text)
         return render(request, 'banking_system/index.html', context={"new_ledger_row": new_ledger_row})
-    
+
 
 def create_user(request):
     if request.method == 'POST':
@@ -109,7 +122,7 @@ def create_user(request):
         last_name = request.POST['last_name']
 
         new_user = User.create_user(username, email, first_name, last_name)
-        
+
         return render(request, 'banking_system/index.html', {'new_user': new_user})
 
 def create_customer(request):
@@ -122,10 +135,11 @@ def create_customer(request):
         phone_number = request.POST['phone_number']
         rank = request.POST['rank']
         user_primary_key = request.POST['user_primary_key']
+        secret_otp = pyotp.random_base32()
 
         user = get_object_or_404(User, pk=user_primary_key)
-        new_customer = User.create_customer(username, password, first_name, last_name, address, phone_number, rank, user)
-        
+        new_customer = User.create_customer(username, password, first_name, last_name, address, phone_number, rank, user, secret_otp)
+
         return render(request, 'banking_system/index.html', {'new_customer': new_customer})
 
 def create_customer_account(request):
@@ -145,9 +159,9 @@ def take_loan(request):
         amount = Decimal(request.POST['amount'])
         text = request.POST['text']
         customer = Customer.objects.get(pk=1)
-        
+
         loan_account = customer.take_loan(deposit_account_primary_key, amount, text)
-        
+
         return render(request, 'banking_system/index.html', {'loan_account':loan_account})
 
 def pay_loan(request):
@@ -156,9 +170,9 @@ def pay_loan(request):
         amount = Decimal(request.POST.get('amount'))
         text = request.POST.get('text')
         customer = Customer.objects.get(pk=1)
-            
+
         customer.pay_loan(account_primary_key, amount, text)
-            
+
         return render(request, 'banking_system/pay_loan')
 
 # PATCH HTTP methods

@@ -34,7 +34,7 @@
                 hx-post="{% url 'banking_system:create_user' %}"
                 hx-trigger="click"
                 hx-swap="none"
-                >Create</button> 
+                >Create</button>
         </form>
     </div>
 
@@ -56,7 +56,7 @@
                 hx-post="{% url 'banking_system:create_customer' %}"
                 hx-trigger="click"
                 hx-swap="none"
-                >Create</button> 
+                >Create</button>
         </form>
     </div>
 
@@ -137,12 +137,12 @@
                 </tr>
                 {% for account in accounts %}
                 <tr>
-                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_id }}</a></td>
-                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_name }}</a></td>
-                    <td>{{ account.account_number }}</td>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.id }}</a></td>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.name }}</a></td>
+                    <td>{{ account.number }}</td>
                     <td>{{ account.balance }}</td>
 
-                    <td>{{ account.customer_fk_id.id }}</td>
+                    <td>{{ account.customer.id }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -165,7 +165,7 @@
 
     </form>
     <br>
-    <hr> 
+    <hr>
             <form>
 
                 <form>
@@ -203,7 +203,7 @@
         hx-get="{% url 'banking_system:get_customer_movements' 1 %}"
         hx-trigger="load">
     </div>
-</section> 
+</section>
 
 <hr>
 
@@ -219,7 +219,7 @@
                 hx-post="{% url 'banking_system:take_loan' %}"
                 hx-trigger="click"
                 hx-swap="none"
-                >Submit</button> 
+                >Submit</button>
         </form>
     </div>
 <hr>
@@ -235,7 +235,7 @@
             hx-post="{% url 'banking_system:pay_loan' %}"
             hx-trigger="click"
             hx-swap="none"
-            >Submit</button> 
+            >Submit</button>
     </form>
 </div>
 

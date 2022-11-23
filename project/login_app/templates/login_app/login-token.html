@@ -1,0 +1,25 @@
+{% extends "login_app/base.html" %}
+
+{% block title %} <title>QR Code</title> {% endblock %}
+
+{% block content %}
+
+<div id="auth_div">
+    <h1>QR Code</h1>
+    <p>In order to activate 2-factor authentication, please scan the QR Code with your authenticator app i.e. Google Authenticator</p>
+    <p>Click next once it has been scanned or if you already have it scanned</p>
+    <hr />
+    <img src="/media/{{ user_otp }}.jpg">
+
+    <button
+            id="{{user_otp}}"
+            hx-get="{% url 'login_app:verify_token' user.pk %}"
+            hx-trigger="click"
+            hx-target="#auth_div"
+            hx-swap="innerHTML">
+        Next</button>
+    <input type="hidden" name="pk" value="{{ user.pk }}"/>
+
+
+</div>
+{% endblock %}

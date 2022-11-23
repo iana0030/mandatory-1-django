@@ -1,0 +1,11 @@
+<h1>Verification</h1>
+<p>Please enter the verification token from your authenticator app:</p>
+<hr />
+{% if error %}
+{{ error }}
+{% endif %}
+<form action="{% url 'login_app:verify_token' user.pk %}" method="POST" >
+    {% csrf_token %}
+    <input type="text" name="totp_token" id="totp_token" />
+    <button>Verify</button>
+</form>
