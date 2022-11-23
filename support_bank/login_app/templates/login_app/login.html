@@ -1,0 +1,27 @@
+{% extends "login_app/base.html" %}
+
+{% block title %} <title>Login</title> {% endblock %}
+
+{% block content %}
+
+<nav>
+<a href="{% url 'login_app:sign_up' %}">Sign up</a>
+</nav>
+
+<h1>Login</h1>
+<hr />
+<form action="{% url 'login_app:login' %}" method="POST">
+    {% csrf_token %}
+    <input type="text" name="user" placeholder="User Name">
+    <input type="password" name="password" placeholder="Password">
+    <button>Login</button>
+</form>
+<hr />
+{% if error %}
+{{ error }}
+{% endif %}
+<a href="{% url 'login_app:request_password_reset'  %}">Request Password Reset</a>
+
+
+
+{% endblock %}

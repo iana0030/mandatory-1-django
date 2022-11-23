@@ -1,0 +1,19 @@
+{% extends "login_app/base.html" %}
+
+{% block title %} <title>Delete account</title> {% endblock %}
+
+{% block content %}
+
+<h1>Delete Account</h1>
+   <hr />
+   <form action="{% url 'login_app:delete_account'%}" method="POST">
+      {% csrf_token %}
+      <input type="password" name="password" placeholder="Password">
+      <br />
+      <input type="text" name="confirm_deletion" placeholder="TYPE DELETE">
+      <br />
+      <button>Submit</button>
+   </form>
+   <hr />
+
+{% endblock %}

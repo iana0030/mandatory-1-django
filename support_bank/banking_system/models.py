@@ -1,6 +1,5 @@
-import random
-import requests
 from decimal import *
+import random
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
@@ -274,25 +273,11 @@ class Ledger(models.Model):
             else:
                 print('Transaction not allowed. Balance too low!')
 
-    # uses requests python library to send HTTP request to hit endpoint 
-    # on other running bank instance to simulatemoney transaction between two banks
-    # other instance can be ran with command $python manage.py runserver 9000
-    # as first instance/main project will be running on 8000
-    def transfer_money_to_other_bank(sender_account_number, receiver_account_number, amount, text):
+    # this method is 2nd part of transfer_money_to_other_bank method
+    def receive_money_from_other_bank(receiver_account_number, amount, text):
         # check if the account exists and if it has more funds than it is being sent
-        if not Account.objects.filter(number=sender_account_number).exists():
-            return f'account with {sender_account_number} does not exist'
-        if Account.objects.get(number=sender_account_number).balance < amount:
-            return 'accounts does not have enough funds'
+        if not Account.objects.filter(number=receiver_account_number).exists():
+            return f'account with {receiver_account_number} does not exist'
 
-        # create payload with necessarry data for money transfer
-        payload = {
-            'receiver_account_number': receiver_account_number,
-            'amount': amount, 
-            'text': text
-        }
-        # send request and receive response
-        response = requests.post('http://127.0.0.1:9000/banking_system/receive_money_from_other_bank/', data=payload)
-        if response.status_code == 200:
-            sender_account = Account.objects.get(number=sender_account_number)
-            Ledger.create(sender_account, -amount, text)
+        receiver_account = Account.objects.get(number=receiver_account_number)
+        Ledger.create(receiver_account, amount, text)
