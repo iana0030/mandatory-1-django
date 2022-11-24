@@ -1,0 +1,42 @@
+{% extends "banking_system/base.html" %} {% block title %}
+<title>Customer</title>
+{% endblock %} {% block content %}
+
+<h3>Welcome to the Customer page</h3>
+<p>Here you can see all the details of your account and transactions</p>
+<hr /> 
+<nav>
+    <a href="/banking_system"> Home </a>
+    <a href="{% url 'banking_system:make_transactions' %}">Transactions</a>
+    <a href="{% url 'banking_system:create_account' %}">Loan-Account</a>
+</nav> 
+<section>
+    <h3>Your Accounts</h3>
+    <table>
+        <tbody>
+            <tr>
+                <th>Account Id</th>
+                <th>Account Name</th>
+                <th>Account Number</th>
+                <th>Account Balance</th>
+            </tr>
+            {% for account in accounts %}
+            <tr>
+                <td>
+                    <a href="{% url 'banking_system:view_account_details' account.pk %}">{{ account.account_id }}</a>
+                </td>
+                <td>
+                    <a href="{% url 'banking_system:view_account_details' account.pk %}">{{ account.account_name }}</a>
+                </td>
+                <td>{{ account.account_number }}</td>
+                <td>{{ account.balance }}</td>
+
+                <td>{{ account.customer_fk_id.id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+<hr />
+
+{% endblock %}

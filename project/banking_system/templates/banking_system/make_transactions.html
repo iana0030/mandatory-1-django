@@ -1,0 +1,25 @@
+{% extends "banking_system/base.html" %} {% block title %}
+<title>Transactions</title>
+{% endblock %} {% block content %}
+
+<section>
+    <h3>Make Transactions</h3>
+    <form>
+        {% csrf_token %}
+        <input type="number" name="sender_account_id" placeholder="Sender Account Number" />
+        <input type="number" name="receiver_account_id" placeholder="Receiver Account Number" />
+        <input type="number" name="amount" placeholder="Amount" />
+        <input type="text" name="text" placeholder="Text" />
+
+        <button hx-post="{% url 'banking_system:make_transactions' %}" hx-trigger="click" hx-swap="none">
+            Create Transaction
+        </button>
+    </form>
+</section>
+<hr />
+<section>
+    <h3>Ledger List</h3>
+    <div id="ledger_list" hx-target="#ledger_list" hx-get="{% url 'banking_system:ledger_list' %}" hx-trigger="load">
+    </div>
+</section>
+{% endblock %}
