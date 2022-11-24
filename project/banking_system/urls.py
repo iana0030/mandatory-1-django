@@ -24,6 +24,5 @@ urlpatterns = [
     path('customer_bank/', views.customer_index, name='customer_bank'),
 
     # PATCH HTTP methods
-    path('change_customer_rank', views.change_customer_rank,
-         name='change_customer_rank'),
+    path('change_customer_rank', views.change_customer_rank, name='change_customer_rank'),
 ]
