@@ -1,3 +1,4 @@
+
 {% extends "banking_system/base.html" %} {% block title %}
 <title>Dashboard</title> {% endblock %} {% block content %}
 
@@ -8,5 +9,246 @@
     <a href="user_bank"> User </a>
     <a href="customer_bank"> Customer</a>
 </nav>
+{% extends "banking_system/base.html" %}
+
+{% block title %} <title>Dashboard</title> {% endblock %}
+
+{% block content %}
+
+    <h2>Some text</h2>
+    <p>Remember to add the actual stuff to this page</p>
+
+<div>
+    <h3> Make Transactions</h3>
+    <form>
+        {% csrf_token %}
+        <input type="number" name="sender_account_id" placeholder="Sender Account Number">
+        <input type="number" name="receiver_account_id" placeholder="Receiver Account Number">
+        <input type="number" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Text">
+
+        <button hx-post="{% url 'banking_system:make_transactions' %}" hx-trigger="click" hx-swap="none">
+            Create Transaction
+        </button>
+    <hr>
+
+    <div>
+        <h3>Create User</h3>
+        <form>
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username">
+            <input type="text" name="email" placeholder="E-mail Address">
+            <input type="text" name="first_name" placeholder="First Name">
+            <input type="text" name="last_name" placeholder="Last Name">
+
+            <button
+                hx-post="{% url 'banking_system:create_user' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create</button> 
+        </form>
+    </div>
+
+    <hr>
+
+    <div>
+        <h3>Create Customer</h3>
+        <form>
+            <input type="text" name="username" placeholder="Username">
+            <input type="text" name="password" placeholder="Password">
+            <input type="text" name="first_name" placeholder="First Name">
+            <input type="text" name="last_name" placeholder="Last Name">
+            <input type="text" name="address" placeholder="Address">
+            <input type="text" name="phone_number" placeholder="Phone Number">
+            <input type="text" name="rank" placeholder="Rank">
+            <input type="text" name="user_primary_key" placeholder="User ID">
+
+            <button
+                hx-post="{% url 'banking_system:create_customer' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create</button> 
+        </form>
+    </div>
+
+    <hr>
+
+    <section>
+        <h3>All Customers</h3>
+
+        <div
+            id="customers-list"
+            hx-target="#customers-list"
+            hx-get="{% url 'banking_system:view_all_customers' %}"
+            hx-trigger="load">
+        </div>
+    </section>
+
+    <hr>
+
+    <section>
+        <h3>All Accounts</h3>
+
+        <div
+            id="accounts-list"
+            hx-target="#accounts-list"
+            hx-get="{% url 'banking_system:view_all_accounts' %}"
+            hx-trigger="load">
+        </div>
+    </section>
+
+    <hr>
+
+    <div>
+        <h3>Create Customer Account</h3>
+        <form>
+            {% csrf_token %}
+            <input type="text" name="account_name" placeholder="Account Name">
+            <input type="text" name="customer_primary_key" placeholder="Customer Foreign Key">
+
+            <button
+                hx-post="{% url 'banking_system:create_customer_account' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Create
+            </button>
+        </form>
+    </div>
+
+    <hr>
+
+    <div>
+        <h3>Change Customer Rank</h3>
+
+        <form>
+            <input type="text" name="customer_primary_key" placeholder="Customer ID">
+            <input type="text" name="new_rank" placeholder="Rank">
+
+            <button
+                hx-patch="{% url 'banking_system:change_customer_rank' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Change Rank</button>
+        </form>
+    </div>
+
+
+
+<hr>
+<section>
+    <table>
+        <h3>Your Accounts</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Account Id</th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Account Balance</th>
+                </tr>
+                {% for account in accounts %}
+                <tr>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_id }}</a></td>
+                    <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.account_name }}</a></td>
+                    <td>{{ account.account_number }}</td>
+                    <td>{{ account.balance }}</td>
+
+                    <td>{{ account.customer_fk_id.id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <form>
+                {% csrf_token %}
+                <input type="text" name="account_name" placeholder="Account name" />
+                <button
+                        hx-post="{% url 'banking_system:create_account' %}"
+                        hx-trigger="click"
+                        hx-swap="none"
+                        target="html"
+                        >Create loan account
+                </button>
+            </form>
+        </div>
+</section>
+
+    </form>
+    <br>
+    <hr> 
+            <form>
+
+                <form>
+                    <table>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Amount</th>
+                            <th>Text</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </form>
+
+                <br>
+                <hr>
+
+                <div id="ledger_list" hx-target="#ledger_list" hx-get="{% url 'banking_system:ledger_list' %}"
+                    hx-trigger="load">
+
+                </div>
+
+</div>
+
+
+<hr>
+
+<section>
+    <h3>All Customer Movements</h3>
+    <div
+        id="customer-movements-list"
+        hx-target="#customer-movements-list"
+        hx-get="{% url 'banking_system:get_customer_movements' 1 %}"
+        hx-trigger="load">
+    </div>
+</section> 
+
+<hr>
+
+<hr>
+    <div>
+        <h3>Take Loan</h3>
+        <form>
+            <input type="text" name="deposit_account_primary_key" placeholder="Account ID">
+            <input type="text" name="amount" placeholder="Amount">
+            <input type="text" name="text" placeholder="Description">
+
+            <button
+                hx-post="{% url 'banking_system:take_loan' %}"
+                hx-trigger="click"
+                hx-swap="none"
+                >Submit</button> 
+        </form>
+    </div>
+<hr>
+
+<div>
+    <h3>Pay Loan</h3>
+    <form>
+        <input type="text" name="account_primary_key" placeholder="Account Number">
+        <input type="text" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Description">
+
+        <button
+            hx-post="{% url 'banking_system:pay_loan' %}"
+            hx-trigger="click"
+            hx-swap="none"
+            >Submit</button> 
+    </form>
+</div>
 
 {% endblock %}
