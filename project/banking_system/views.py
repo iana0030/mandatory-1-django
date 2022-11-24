@@ -3,7 +3,11 @@ from django.shortcuts import render
 from .models import Ledger, Customer, Account, User
 from decimal import *
 
+
+
+
 # GET HTTP methods
+
 def index(request):
     # VIEWING ACCOUNTS
     if request.method == "GET":
@@ -14,7 +18,20 @@ def index(request):
             'accounts': accounts
         }
 
-        return render(request, 'banking_system/index.html', context)
+
+    return render(request, 'banking_system/index.html', context)
+
+
+# cutomer_page
+def customer_index(request):
+    return render(request, 'banking_system/customer_bank.html', {})
+
+
+# user_page
+def user_index(request):
+    return render(request, 'banking_system/user_bank.html', {})
+
+
 
 def view_account_details(request, pk):
     account = get_object_or_404(Account, pk=pk)
@@ -70,11 +87,14 @@ def create_account(request):
         # User.create_customer_account(customer_foreign_key=user_id)
         Account.create(account_name, customer_fk_id)
 
-    response = render(request, 'banking_system/index.html', {})
-    response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
-    return response
 
-    return render(request, 'banking_system/index.html', {})
+        response = render(request, 'banking_system/loan_account.html', {})
+        response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
+
+
+    return render(request, 'banking_system/loan_account.html', {})
+
 
 def make_transactions(request):
     if request.method == 'POST':
@@ -82,6 +102,14 @@ def make_transactions(request):
         receiver_account_id = request.POST["receiver_account_id"]
         amount = request.POST["amount"]
         text = request.POST["text"]
+
+        sender_account = Account.objects.get(account_id=sender_account_id)
+        print(sender_account)
+        receiver_account = Account.objects.get(account_id=receiver_account_id)
+        Ledger.make_transactions(
+            sender_account, receiver_account, amount, text)
+    return render(request, 'banking_system/make_transactions.html')
+
 
         sender_account = get_object_or_404(Account, pk=sender_account_id)
         receiver_account = get_object_or_404(Account, pk=receiver_account_id)
@@ -91,15 +119,47 @@ def make_transactions(request):
         return render(request, 'banking_system/index.html')
 
 
+
 def create_ledger_row(request):
+    new_ledger_row = []
     if request.method == "POST":
         account_id = request.POST["account_id"]
         amount = request.POST["amount"]
         text = request.POST["text"]
         account = Account.objects.get(pk=account_id)
         new_ledger_row = Ledger.create(account, amount, text)
+
+    return render(request, 'banking_system/make_transactions.html', context={"new_ledger_row": new_ledger_row})
+
+
+def ledger_list(request):
+    if request.method == 'GET':
+        ledger = Ledger.objects.all()
+    return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
+# USER methods
+# GET HTTP methods
+
+
+def view_all_customers(request):
+    if request.method == 'GET':
+        customers = User.view_all_customers()
+
+    return render(request, 'banking_system/customers_list_partial.html', {'customers': customers})
+
+
+def view_all_accounts(request):
+    if request.method == 'GET':
+        accounts = User.view_all_accounts()
+
+    return render(request, 'banking_system/accounts_list_partial.html', {'accounts': accounts})
+
+
+# POST HTTP methods
+
+
         return render(request, 'banking_system/index.html', context={"new_ledger_row": new_ledger_row})
     
+
 
 def create_user(request):
     if request.method == 'POST':
@@ -109,10 +169,12 @@ def create_user(request):
         last_name = request.POST['last_name']
 
         new_user = User.create_user(username, email, first_name, last_name)
-        
-        return render(request, 'banking_system/index.html', {'new_user': new_user})
+
+    return render(request, 'banking_system/user_bank.html', {'new_user': new_user})
+
 
 def create_customer(request):
+    new_customer = []
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -123,10 +185,18 @@ def create_customer(request):
         rank = request.POST['rank']
         user_primary_key = request.POST['user_primary_key']
 
+
+        new_customer = User.create_customer(
+            username, password, first_name, last_name, address, phone_number, rank, user_foreign_key)
+
+    return render(request, 'banking_system/create_customer.html', {'new_customer': new_customer})
+
+
         user = get_object_or_404(User, pk=user_primary_key)
         new_customer = User.create_customer(username, password, first_name, last_name, address, phone_number, rank, user)
         
         return render(request, 'banking_system/index.html', {'new_customer': new_customer})
+
 
 def create_customer_account(request):
     if request.method == 'POST':
@@ -135,9 +205,14 @@ def create_customer_account(request):
 
         customer = get_object_or_404(Customer, pk=customer_primary_key)
 
+        new_customer_account = User.create_customer_account(
+            customer_foreign_key)
+
+    return render(request, 'banking_system/create_customer.html', {'new_customer_account': new_customer_account})
+
         new_customer_account = User.create_customer_account(customer, account_name)
 
-        return render(request, 'banking_system/index.html', {'new_customer_account': new_customer_account})
+
 
 def take_loan(request):
     if request.method == 'POST':
@@ -162,10 +237,13 @@ def pay_loan(request):
         return render(request, 'banking_system/pay_loan')
 
 # PATCH HTTP methods
+
 def change_customer_rank(request):
+    updated_user = []
     if request.method == 'PATCH':
         customer_primary_key = request.PATCH['customer_primary_key']
         new_rank = request.PATCH['new_rank']
-        updated_user = User.change_customer_rank(customer_primary_key, new_rank)
+        updated_user = User.change_customer_rank(
+            customer_primary_key, new_rank)
 
-        return render(request, 'banking_system/index.html', {'updated_user': updated_user})
+    return render(request, 'banking_system/change_rank.html', {'updated_user': updated_user})

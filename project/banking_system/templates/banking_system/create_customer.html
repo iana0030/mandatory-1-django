@@ -1,0 +1,32 @@
+<div>
+    <h3>Create Customer</h3>
+    <form>
+        <input type="text" name="username" placeholder="Username" />
+        <input type="text" name="password" placeholder="Password" />
+        <input type="text" name="first_name" placeholder="First Name" />
+        <input type="text" name="last_name" placeholder="Last Name" />
+        <input type="text" name="address" placeholder="Address" />
+        <input type="text" name="phone_number" placeholder="Phone Number" />
+        <input type="text" name="rank" placeholder="Rank" />
+        <input type="text" name="user_primary_key" placeholder="User ID" />
+
+        <button hx-post="{% url 'banking_system:create_customer' %}" hx-trigger="click" hx-swap="none">
+            Create
+        </button>
+    </form>
+</div>
+<hr />
+
+<div>
+    <h3>Create Customer Account</h3>
+    <form>
+        {% csrf_token %}
+        <input type="text" name="account_name" placeholder="Account Name" />
+        <input type="text" name="customer_primary_key" placeholder="Customer Foreign Key" />
+
+        <button hx-post="{% url 'banking_system:create_customer_account' %}" hx-trigger="click" hx-swap="none">
+            Create
+        </button>
+    </form>
+</div>
+<hr />

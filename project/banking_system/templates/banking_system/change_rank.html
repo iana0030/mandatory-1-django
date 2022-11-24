@@ -1,0 +1,11 @@
+<div>
+    <h3>Change Customer Rank</h3>
+    <form>
+        <input type="text" name="customer_primary_key" placeholder="Customer ID" />
+        <input type="text" name="new_rank" placeholder="Rank" />
+
+        <button hx-patch="{% url 'banking_system:change_customer_rank' %}" hx-trigger="click" hx-swap="none">
+            Change Rank
+        </button>
+    </form>
+</div>

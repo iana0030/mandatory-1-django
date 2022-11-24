@@ -1,0 +1,16 @@
+{% extends "banking_system/base.html" %} {% block title %}
+<title>Loan-Account</title> {% endblock %} {% block content %}
+<section>
+    <h3>Loan Account</h3>
+    <div>
+        <form>
+            {% csrf_token %}
+            <input type="text" name="account_name" placeholder="Account name" />
+            <button hx-post="{% url 'banking_system:create_account' %}" hx-trigger="click" hx-swap="none" target="html">
+                Create loan account
+            </button>
+        </form>
+    </div>
+</section>
+<hr />
+{% endblock %}
