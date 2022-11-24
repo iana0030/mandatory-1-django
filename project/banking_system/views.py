@@ -148,7 +148,28 @@ def create_customer_account(request):
 
     return render(request, 'banking_system/create_customer.html', {'new_customer_account': new_customer_account})
 
+def take_loan(request):
+    if request.method == 'POST':
+        deposit_account_primary_key = request.POST['deposit_account_primary_key']
+        amount = Decimal(request.POST['amount'])
+        text = request.POST['text']
+        customer = Customer.objects.get(pk=1)
+        
+        loan_account = customer.take_loan(deposit_account_primary_key, amount, text)
+        
+        return render(request, 'banking_system/index.html', {'loan_account':loan_account})
 
+def pay_loan(request):
+    if request.method == 'POST':
+        account_primary_key = request.POST.get('account_primary_key')
+        amount = Decimal(request.POST.get('amount'))
+        text = request.POST.get('text')
+        customer = Customer.objects.get(pk=1)
+            
+        customer.pay_loan(account_primary_key, amount, text)
+            
+        return render(request, 'banking_system/pay_loan')
+        
 # PATCH HTTP methods
 
 def change_customer_rank(request):
