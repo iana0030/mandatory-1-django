@@ -1,17 +1,18 @@
 from decimal import *
-import random
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
+import random
 
+# after every defined method, that method with the same name is added to Django's User class via User.add_to_class method
 
 # represents the User class which is used by bank employees for administration or by regular customers
 def __str__(self):
-    return f"ID: {self.id} | SURNAME: {self.username} | EMAIL: {self.email} | FIRST NAME: {self.first_name} | LAST NAME: {self.last_name}"
+    return f"{self.id} - {self.username} - {self.email} - {self.first_name} - {self.last_name}"
 
+User.add_to_class("__str__", __str__)
 
-# creates the user
-# User.create("username", "email", "first_name", "last_name")
+# create the user
 def create_user(username, email, first_name, last_name):
     user = User.objects.create(
         username = username,
@@ -21,61 +22,75 @@ def create_user(username, email, first_name, last_name):
     )
     return user
 
+User.add_to_class("create_user", create_user)
 
-# creates the customer for user
-# User.create_customer("username", "password", "first_name", "last_name", "address", "phone_number", "rank", user_primary_key)
-def create_customer(username, password, first_name, last_name, address, phone_number, rank, user):
+# create the customer for user
+def create_customer(username, password, first_name, last_name, address, phone_number, rank, user_foreign_key):
     # search for user
-    customer = Customer.objects.create(
-        username = username,
-        password = password,
-        first_name = first_name,
-        last_name = last_name,
-        address = address,
-        phone_number = phone_number,
-        rank = rank,
-        user = user
-    )
-    return customer
+    owner_user = User.objects.get(pk=user_foreign_key)
+    if owner_user:
+        customer = Customer.objects.create(
+            username = username,
+            password = password,
+            first_name = first_name,
+            last_name = last_name,
+            address = address,
+            phone_number = phone_number,
+            rank = rank,
+            user = owner_user
+        )
+        return customer
+    return "User couldn't be found."
 
+User.add_to_class("create_customer", create_customer)
 
-# User.view_all_customers()
 def view_all_customers():
     all_customers = Customer.objects.all()
     return all_customers
 
+User.add_to_class("view_all_customers", view_all_customers)
 
-# User.view_all_accounts()
 def view_all_accounts():
     all_accounts = Account.objects.all()
     return all_accounts
 
+User.add_to_class("view_all_accounts", view_all_accounts)
 
-# User.change_customer_rank(customer_primary_key, "new_rank")
 def change_customer_rank(customer_primary_key, new_rank):
     customer = Customer.objects.get(pk=customer_primary_key)
     customer.rank = new_rank
     customer.save()
     return Customer.objects.get(pk=customer_primary_key)
 
-
-# User.create_customer_account(customer_primary_key, "account_name")
-def create_customer_account(customer, account_name):
-    random_account_number = random.getrandbits(64)
-    new_customer_account = Account.create(account_name, random_account_number, False, customer)
-    return new_customer_account
-
-
-# Add defined methods to the User
-User.add_to_class("__str__", __str__)
-User.add_to_class("create_user", create_user)
-User.add_to_class("create_customer", create_customer)
-User.add_to_class("view_all_customers", view_all_customers)
-User.add_to_class("view_all_accounts", view_all_accounts)
 User.add_to_class("change_customer_rank", change_customer_rank)
+
+def create_customer_account(customer_foreign_key):
+    random_account_number = random.getrandbits(64)
+    owner_customer = Customer.objects.get(pk=customer_foreign_key)
+    if owner_customer:
+        new_customer_account = Account.create(random_account_number, False, owner_customer)
+        return new_customer_account
+    return "Customer couldn't be found."
+
 User.add_to_class("create_customer_account", create_customer_account)
 
+# create the Bank User, Bank Customer, Bank Accounts
+# only ran at initial setup or deployment
+def create_bank():
+    # check if the bank is already created
+    if User.objects.filter(username="BANK").exists():
+        return "Bank already exists."
+    with transaction.atomic():
+        bank_user = User.create_user("BANK", "BANK@email.com", "BANK_NAME", "BANK_SURNAME")
+        User.create_customer("BANK_USERNAME", "BANK_PASSWORD", "BANK_FN", "BANK_LN", "BANK_ADDRESS", "BANK_PHONE_NR", "gold", bank_user.id)
+        bank_customer_retrieved = Customer.objects.get(username="BANK_USERNAME")
+        User.create_customer_account(bank_customer_retrieved.id)
+        User.create_customer_account(bank_customer_retrieved.id)
+        bank_accounts_retrieved = Account.objects.all()
+        Ledger.create(bank_accounts_retrieved[0], 100000.00, "Initial deposit.")
+        Ledger.create(bank_accounts_retrieved[1], 999999.00, "Initial deposit.")
 
+User.add_to_class("create_bank", create_bank)
 
 # represents the Customer class
 class Customer(models.Model):
@@ -89,73 +104,48 @@ class Customer(models.Model):
     rank = models.CharField(max_length=6)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    
     def __str__(self):
-        return f"ID {self.id} | USERNAME: {self.username} | PASSWORD: {self.password} | FIRST NAME {self.first_name} | LAST NAME: {self.last_name} | ADDRESS: {self.address} | PHONE NUMBER: {self.phone_number} | RANK: {self.rank} | USER_ID: {self.user.id}"
+        return f"{self.id} - {self.username} - {self.password} - {self.first_name} {self.last_name} - {self.address} - {self.phone_number} - {self.rank} - {self.user}"
 
-    
     # retrieves all customer's accounts and accounts' movements
-    # Customer.objects.get(pk=ID).get_customer_balance()
-    # or assign Customer.objects.get(pk=ID) to variable like "customer"
-    # customer.get_customer_movement()
-    def get_customer_movements(self):
+    def get_customer_movements(foreign_key):
         # get all customer accounts
-        customer_accounts = Account.objects.filter(customer_id=self.id)
+        customer_accounts = Account.objects.filter(customer_fk_id=foreign_key)
         # get transactions those accounts made
-        customer_account_movements = list()
+        customer_account_movements = []
         for customer_account in customer_accounts:
-            # for each Account Customer owns get Ledger rows (transactions)
-            customer_movements_queryset = Ledger.objects.filter(account_id=customer_account.id)
-            
-            # put each Ledger row (transaction) in list
-            for customer_account_movement in customer_movements_queryset:
-                customer_account_movements.append(customer_account_movement)
-
+            customer_account_movements.append(Ledger.objects.filter(account_id=customer_account.account_id))
         records = {
             'customer_accounts': customer_accounts,
             'customer_account_movements': customer_account_movements
         }
         return records
 
-
-    # creates the loan account for the customer
-    # Customer.objects.get(pk=ID).take_loan(ACCOUNT_ID, 100, "Money")
-    # or assign Customer.objects.get(pk=ID) to variable like "customer"
-    # customer.take_loan(ACCOUNT_ID, 100, "Money")
+    # creates the loan account
     def take_loan(self, deposit_account_primary_key, amount, text):
         # get customer accounts
         available_accounts = self.get_customer_movements()["customer_accounts"]
-
         # check for customer rank and if the customer has available accounts for deposit
         if self.rank == 'basic':
             return "Can't make a loan. User is not of silver or gold rank."
         elif available_accounts.count() == 0:
             return "Customer doesn't have any accounts to deposit money from loan to."
-        elif not available_accounts.get(id=deposit_account_primary_key):
+        elif not available_accounts.get(account_id=deposit_account_primary_key):
             return "There is no account with such primary key that belongs to this customer."
         else:
             # find deposit account, create loan/withdrawal account, get loan account after ID is set by Django
             # then transfer money from one to another in case of error, transaction will ensure ACID
             deposit_account = Account.objects.get(pk=deposit_account_primary_key)
             with transaction.atomic():
-                loan_account_account_number = Customer.create_loan_account(self).number
-                loan_account = Account.objects.get(number=loan_account_account_number)
+                loan_account_account_number = Customer.create_loan_account(self).account_number
+                loan_account = Account.objects.get(account_number=loan_account_account_number)
                 Ledger.make_transactions(loan_account, deposit_account, amount, text)
 
-
     # pays loan to loan account/s
-    # since one customer can take multiple loans, he can pay of one loan partly, 
-    # one loan entirely and one loan partly or more loans entirely and one loan partly
-    # Customer.objects.get(pk=ID).pay_loan(ACCOUNT_ID, 100, "Money")
-    # or assign Customer.objects.get(pk=ID) to variable like "customer"
-    # customer.pay_loan(ACCOUNT_ID, 100, "Money")
+    # since one customer can take multiple loans, he can pay of one loan partly, one loan entirely and one loan partly or more loans entirely and one loan partly
     def pay_loan(self, account_primary_key, amount, text):
         # check if the user has loans
-        loan_accounts = Account.objects.all().filter(customer_id=self.id).filter(is_loan=True)
-
-        # print("\n\n")
-        # print(loan_accounts)
-        # print("\n\n")
+        loan_accounts = Account.objects.all().filter(customer_fk_id=self.id).filter(is_loan=True)
         if not len(loan_accounts):
             return "Customer doesn't have any loans."
 
@@ -177,11 +167,9 @@ class Customer(models.Model):
             if -amount > loan_account.balance:
                 # total takes snapshot of current loan account balance
                 total = loan_account.balance
-
                 # make transaction from user account to loan account
                 Ledger.make_transactions(customer_account, loan_account, amount, text)
-
-                return f"Paid {amount} of {total} on {loan_account.number} account. Need to pay {loan_account.balance} more."
+                return f"Paid {amount} of {total} on {loan_account.account_number} account. Need to pay {loan_account.balance} more."
             else:
                 # make transaction from user account to loan account fully
                 # if customer wanted to pay loan of 1000 and he is paying loan of 500, then 1000 += -500
@@ -190,67 +178,52 @@ class Customer(models.Model):
                 loan_account.delete()
         return
 
-
     # creates loan account and connects it to the customer
-    def create_loan_account(customer):
+    def create_loan_account(customer_primary_key):
         random_account_number = random.getrandbits(64)
-        new_loan_account = Account.create(f"LOAN{random_account_number}", random_account_number, True, customer)
+        new_loan_account = Account.create(random_account_number, True, customer_primary_key)
         return new_loan_account
-
-
 
 # represents Account class which can belong to one Customer
 class Account(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=30)
-    number = models.CharField(max_length=30)
+    account_id = models.IntegerField(primary_key=True)
+    account_name = models.CharField(max_length=30)
+    account_number = models.CharField(max_length=30)
     is_loan = models.BooleanField(default=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-
+    customer_fk_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"ID: {self.id} | NAME: {self.name} | NUMBER: {self.number} | IS LOAN: {self.is_loan} | CUSTOMER: {self.customer}"
+        return f"{self.account_id} - {self.account_name} - {self.account_number} - {self.is_loan} - {self.customer_fk_id}"
 
-
-    # creates new Account in Account table 
-    # Account.create("Main", "12131", False, CUSTOMER ID)
     @classmethod
-    def create(cls, name, number, is_loan, customer):
+    def create(cls, account_name=account_name, account_number=account_number, is_loan=is_loan, customer_fk_id=customer_fk_id):
         new_account = cls.objects.create(
-            name     = name,
-            number   = number,
-            is_loan  = is_loan,
-            customer = customer
+            account_name    = account_name,
+            account_number  = account_number,
+            is_loan         = is_loan,
+            customer_fk_id  = customer_fk_id
         )
         return new_account
 
-
     # goes through Ledger table, gets all acounts with particular ID and then aggregates their amount into SUM
-    # Account.objects.get(pk=ID).balance
-    # or you can assign Account to variable like "account" 
-    # and then do account.balance
     @property
     def balance(self):
-        return Decimal(Ledger.objects.filter(account_id=self.id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
-
-
+        return Decimal(Ledger.objects.filter(account_id=self.account_id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
 
 # represents the Ledger class which stores transactions in a way that bulk_create() creates two rows
 # one row is deduction from one account, other row is addition to other account
 class Ledger(models.Model):
     transaction_id = models.IntegerField(primary_key=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     time_stamp = models.DateTimeField(auto_now=True)
     text = models.CharField(max_length=200)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-
 
     def __str__(self):
-        return f"ID: {self.transaction_id} | ACCOUNT: {self.account} | AMOUNT: {self.amount} | CREATED_AT: {self.time_stamp} | TEXT: {self.text}"
-
+        return f"{self.transaction_id} - {self.account} - {self.amount} -{self.time_stamp} - {self.text}"
 
     @ classmethod
-    def create(cls, account, amount, text):
+    def create(cls, account=account, amount=amount, text=text):
         new_ledger_row = cls.objects.create(
             account     = account,
             amount      = amount,
@@ -258,16 +231,16 @@ class Ledger(models.Model):
         )
         return new_ledger_row
 
-
-    # uses transaction and create to insert two rows in Ledger table
+    # uses transaction and bulk_create to insert two rows in Ledger table
     # first row is sender account sending money, therefore amount being negative
     # second row is receiver account receiving money, therefore amount being positive
-    # sender_account = Account.objects.get(pk=ID)
-    # receiver_account = Account.objects.get(pk=ID)
-    # Ledger.make_transactions(sender_account, receiver_account, 100, "Money")
     def make_transactions(sender_account, receiver_account, amount, text):
         with transaction.atomic():
-            if sender_account.balance >= Decimal(amount) or sender_account.is_loan == True:
+            if sender_account.balance >= amount or sender_account.is_loan == True:
+                #Ledger.objects.bulk_create([
+                    #Ledger(account=sender_account, amount=-Decimal(amount), text=text),
+                   # Ledger(account=receiver_account, amount=Decimal(amount), text=text)
+                #])
                 Ledger.create(sender_account, -Decimal(amount), text)
                 Ledger.create(receiver_account, Decimal(amount), text)
             else:
