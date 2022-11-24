@@ -169,8 +169,6 @@ def pay_loan(request):
 @csrf_exempt
 def receive_money_from_other_bank(request):
     if request.method == 'POST':
-        print(request)
-        print("I AM HIT")
         receiver_account_number = request.POST['receiver_account_number']
         amount = request.POST['amount']
         text = request.POST['text']

@@ -8,7 +8,7 @@ def index(request):
     # VIEWING ACCOUNTS
     if request.method == "GET":
         user_id = request.user.id
-        accounts = Account.objects.filter(customer_fk_id=user_id)
+        accounts = Account.objects.filter(customer_id=user_id)
 
         context = {
             'accounts': accounts
