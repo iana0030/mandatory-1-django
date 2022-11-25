@@ -115,7 +115,6 @@ def login(request):
                     'user': user
                     }
 
-            print("WHERE AM I")
             return render(request, 'login_app/login-token.html', context)
         else:
             context = {
