@@ -10,60 +10,76 @@ from os import path
 
 
 def QR_code_view(request):
-    user = request.user
+    print("YOOOOOOOOOOOOOOOOOOOO")
+    #user = request.user
     #user = User.objects.get(pk=pk)
-    print("USER: ", user)
+    #print("USER: ", user)
+
     # A view in order to show the user the qr code that they need to scan.
     # The code gets saved as an image in the media directory
-    secret_otps = OTPUser.objects.filter()
-    user_id = request.user.id
-    user = request.user
-    issuer_name = "BANK CO."
-    user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
-    print(user_otp)
-    key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
-    print(key_str)
-    qr_img = qrcode.make(key_str)
-    print(qr_img)
+    #secret_otps = OTPUser.objects.filter()
+    #user_id = request.user.id
+    #user = request.user
+    #issuer_name = "BANK CO."
+    #user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
+    #print(user_otp)
+    #key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
+    #print(key_str)
+    #qr_img = qrcode.make(key_str)
+    #print(qr_img)
 
 
-    if path.exists(f'./media/{user_otp}.jpg'):
-        print("The file already exists")
-    else:
-        print("The file doesn't exist yet. Creating file....'")
-        qr_img.save(f'./media/{user_otp}.jpg')
+    #if path.exists(f'./media/{user_otp}.jpg'):
+    #    print("The file already exists")
+    #else:
+    #    print("The file doesn't exist yet. Creating file....'")
+    #    qr_img.save(f'./media/{user_otp}.jpg')
 
-    context = {
-            'user_otp': user_otp,
-            'user': user
-            }
-
+    #context = {
+    #        'user_otp': user_otp,
+    #        'user': user
+    #        }
+    context = {}
     return render(request, 'login_app/login-token.html', context)
 
 
 def verify_token(request, pk):
-    context = {}
+    print(request.method)
+    print(type(pk))
+    print(pk)
+    #context = {}
     #user = User.objects.get(pk=pk)
     user = get_object_or_404(User, pk=pk)
     print("YOU'RE IN VERIFY", user)
+    context = {
+            'user': user,
+            'pk': pk
+            }
+
+
     if request.method == 'GET':
         print("GETTTTTTTTTTT")
         context = {
                 'user': user
                 }
         # Return the form
+        #response = render(request, 'login_app/verify_token.html', context)
+        #response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        #return response
         return render(request, 'login_app/verify_token.html', context)
 
-    if request.method == 'POST':
+
+    if request.method == "POST":
+        pk = request.POST["pk"]
         print("PPOOOOOOOOOOOST")
         # Get the user that's trying to login
-#        user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
+        # user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
         user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
         print(user_otp)
         secret = user_otp.encode()
         print(secret)
         # Get the authentication number
-        totp = pyotp.TOTP(base64.b32encode(secret))
+        totp = pyotp.TOTP(secret)
         t = totp.now()
         print(totp.now())
 
@@ -75,6 +91,7 @@ def verify_token(request, pk):
             return HttpResponseRedirect(reverse('banking_system:index'))
         elif totp.verify(totp_token) == False:
             print("TOTP doesn't match")
+            print(totp_token)
             context = {
                     'error': "The token doesn't match, Please try again."
                     }
@@ -82,8 +99,11 @@ def verify_token(request, pk):
             context = {
                     'error': 'Bad username or password.'
                     }
-
-    return render(request, 'login_app/login-token.html', context)
+   # response = render(request, 'login_app/verify_token.html', context)
+   # response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
+   # return response
+    #print(context)
+    return render(request, 'login_app/login.html', context)
 
 
 def login(request):
@@ -106,9 +126,18 @@ def login(request):
 
         # If user logs in for the first time they will get an auth and a qrcode generated
         if user.last_login == None:
+            print("User hasn't logged in before")
             user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
+            print(user_otp)
             key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
             qr_img = qrcode.make(key_str)
+
+            if path.exists(f'./media/{user_otp}.jpg'):
+                print("The file already exists")
+            else:
+                print("The file doesn't exist yet. Creating file....'")
+                qr_img.save(f'./media/{user_otp}.jpg')
+
             context = {
                     'qr_img': qr_img,
                     'user_otp': user_otp,
@@ -116,7 +145,17 @@ def login(request):
                     }
             return render(request, 'login_app/login-token.html', context)
         elif user:
+            issuer_name = "BANK CO."
             user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
+            key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
+            qr_img = qrcode.make(key_str)
+
+            if path.exists(f'./media/{user_otp}.jpg'):
+                print("The file already exists")
+            else:
+                print("The file doesn't exist yet. Creating file....'")
+                qr_img.save(f'./media/{user_otp}.jpg')
+
             context = {
                     'user_otp': user_otp,
                     'user': user
@@ -200,7 +239,6 @@ def sign_up(request):
         email = request.POST['email']
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
-        secret = pyotp.random_base32()
 
         if password == confirm_password:
             if User.objects.create_user(user_name, first_name=first_name, last_name=last_name, email=email, password=password):

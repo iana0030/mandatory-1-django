@@ -9,6 +9,9 @@
 </nav>
 
 <h1>Login</h1>
+{% if error %}
+{{ error }}
+{% endif %}
 <hr />
 <form action="{% url 'login_app:login' %}" method="POST">
     {% csrf_token %}
@@ -17,9 +20,6 @@
     <button>Login</button>
 </form>
 <hr />
-{% if error %}
-{{ error }}
-{% endif %}
 <a href="{% url 'login_app:request_password_reset'  %}">Request Password Reset</a>
 
 

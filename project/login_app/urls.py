@@ -6,7 +6,6 @@ app_name = 'login_app'
 
 urlpatterns = [
         path('login/', views.login, name='login'),
-        path('login-token/', views.QR_code_view, name='QR_code_view'),
         path('verify_token/<int:pk>/', views.verify_token, name='verify_token'),
         path('logout/', views.logout, name='logout'),
         path('request_password_reset/', views.request_password_reset, name='request_password_reset'),

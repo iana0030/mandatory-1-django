@@ -4,8 +4,9 @@
 {% if error %}
 {{ error }}
 {% endif %}
-<form action="{% url 'login_app:verify_token' user.pk %}" method="POST" >
+<form action="{% url 'login_app:verify_token' user.pk %}" method="POST">
     {% csrf_token %}
-    <input type="text" name="totp_token" id="totp_token" />
-    <button>Verify</button>
+    <input type="number" name="totp_token" id="totp_token" />
+    <input type="hidden" name="pk" value="{{ user.pk }}" />
+    <button type="submit">Verify</button>
 </form>

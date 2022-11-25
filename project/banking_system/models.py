@@ -24,7 +24,7 @@ def create_user(username, email, first_name, last_name):
 
 # creates the customer for user
 # User.create_customer("username", "password", "first_name", "last_name", "address", "phone_number", "rank", user_primary_key)
-def create_customer(username, password, first_name, last_name, address, phone_number, rank, user, secret_otp):
+def create_customer(username, password, first_name, last_name, address, phone_number, rank, user):
     # search for user
     customer = Customer.objects.create(
         username = username,
@@ -35,7 +35,6 @@ def create_customer(username, password, first_name, last_name, address, phone_nu
         phone_number = phone_number,
         rank = rank,
         user = user,
-        secret_otp = secret_otp
     )
     return customer
 
@@ -89,7 +88,6 @@ class Customer(models.Model):
     phone_number = models.CharField(max_length=20)
     rank = models.CharField(max_length=6)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    secret_otp = models.CharField(max_length=30)
 
 
     def __str__(self):

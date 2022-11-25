@@ -7,10 +7,13 @@
 <div id="auth_div">
     <h1>QR Code</h1>
     <p>In order to activate 2-factor authentication, please scan the QR Code with your authenticator app i.e. Google Authenticator</p>
-    <p>Click next once it has been scanned or if you already have it scanned</p>
-    <hr />
+    <p>Click next once it has been scanned or if you have it scanned already</p>
+{% if error %}
+{{ error }}
+{% endif %}
+   <hr />
     <img src="/media/{{ user_otp }}.jpg">
-
+    <br>
     <button
             id="{{user_otp}}"
             hx-get="{% url 'login_app:verify_token' user.pk %}"
@@ -18,7 +21,6 @@
             hx-target="#auth_div"
             hx-swap="innerHTML">
         Next</button>
-    <input type="hidden" name="pk" value="{{ user.pk }}"/>
 
 
 </div>
