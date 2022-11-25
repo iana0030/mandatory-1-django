@@ -71,6 +71,7 @@ def get_customer_movements(request, pk):
             }
         )
 
+
 # POST HTTP methods
 def create_account(request):
     if request.method == "POST":
@@ -88,6 +89,7 @@ def create_account(request):
     return response
 
     return render(request, 'banking_system/index.html', {})
+
 
 def make_transactions(request):
     if request.method == 'POST':
@@ -125,6 +127,7 @@ def create_user(request):
 
         return render(request, 'banking_system/index.html', {'new_user': new_user})
 
+
 def create_customer(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -142,6 +145,7 @@ def create_customer(request):
 
         return render(request, 'banking_system/index.html', {'new_customer': new_customer})
 
+
 def create_customer_account(request):
     if request.method == 'POST':
         account_name = request.POST['account_name']
@@ -152,6 +156,7 @@ def create_customer_account(request):
         new_customer_account = User.create_customer_account(customer, account_name)
 
         return render(request, 'banking_system/index.html', {'new_customer_account': new_customer_account})
+
 
 def take_loan(request):
     if request.method == 'POST':
@@ -164,6 +169,7 @@ def take_loan(request):
 
         return render(request, 'banking_system/index.html', {'loan_account':loan_account})
 
+
 def pay_loan(request):
     if request.method == 'POST':
         account_primary_key = request.POST.get('account_primary_key')
@@ -174,6 +180,7 @@ def pay_loan(request):
         customer.pay_loan(account_primary_key, amount, text)
 
         return render(request, 'banking_system/pay_loan')
+
 
 # PATCH HTTP methods
 def change_customer_rank(request):

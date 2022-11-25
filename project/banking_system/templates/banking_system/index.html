@@ -141,7 +141,6 @@
                     <td><a href="{% url 'banking_system:account_details' account.pk %}">{{ account.name }}</a></td>
                     <td>{{ account.number }}</td>
                     <td>{{ account.balance }}</td>
-
                     <td>{{ account.customer.id }}</td>
                 </tr>
                 {% endfor %}

@@ -9,79 +9,33 @@ import pyotp, qrcode, os.path, base64
 from os import path
 
 
-def QR_code_view(request):
-    print("YOOOOOOOOOOOOOOOOOOOO")
-    #user = request.user
-    #user = User.objects.get(pk=pk)
-    #print("USER: ", user)
-
-    # A view in order to show the user the qr code that they need to scan.
-    # The code gets saved as an image in the media directory
-    #secret_otps = OTPUser.objects.filter()
-    #user_id = request.user.id
-    #user = request.user
-    #issuer_name = "BANK CO."
-    #user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
-    #print(user_otp)
-    #key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
-    #print(key_str)
-    #qr_img = qrcode.make(key_str)
-    #print(qr_img)
-
-
-    #if path.exists(f'./media/{user_otp}.jpg'):
-    #    print("The file already exists")
-    #else:
-    #    print("The file doesn't exist yet. Creating file....'")
-    #    qr_img.save(f'./media/{user_otp}.jpg')
-
-    #context = {
-    #        'user_otp': user_otp,
-    #        'user': user
-    #        }
-    context = {}
-    return render(request, 'login_app/login-token.html', context)
-
-
 def verify_token(request, pk):
-    print(request.method)
-    print(type(pk))
-    print(pk)
-    #context = {}
-    #user = User.objects.get(pk=pk)
     user = get_object_or_404(User, pk=pk)
-    print("YOU'RE IN VERIFY", user)
     context = {
             'user': user,
             'pk': pk
             }
 
-
+    # Return the verification form
     if request.method == 'GET':
-        print("GETTTTTTTTTTT")
         context = {
                 'user': user
                 }
-        # Return the form
-        #response = render(request, 'login_app/verify_token.html', context)
-        #response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
-        #return response
+
         return render(request, 'login_app/verify_token.html', context)
 
 
+    # Authentication of user input
     if request.method == "POST":
         pk = request.POST["pk"]
-        print("PPOOOOOOOOOOOST")
-        # Get the user that's trying to login
-        # user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
+
+        # Get the user's otp and encode it
         user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
-        print(user_otp)
         secret = user_otp.encode()
-        print(secret)
+
         # Get the authentication number
         totp = pyotp.TOTP(secret)
         t = totp.now()
-        print(totp.now())
 
         # Verify that the number the user is entering is correct
         totp_token = request.POST["totp_token"]
@@ -99,10 +53,7 @@ def verify_token(request, pk):
             context = {
                     'error': 'Bad username or password.'
                     }
-   # response = render(request, 'login_app/verify_token.html', context)
-   # response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
-   # return response
-    #print(context)
+
     return render(request, 'login_app/login.html', context)
 
 
@@ -114,24 +65,25 @@ def login(request):
         context = {
                 'user': user
                 }
+
         # Values to insert in the provisioning uri for authenticator app
         issuer_name = "BANK CO."
         secret = pyotp.random_base32()
 
-        # Checks if the user has a secret_otp value and creates it if it doesn't
+        # Checks if the user has a secret_otp value and creates it if they don't
         if not OTPUser.objects.filter(user_id=user.id):
             print("NO OTP")
             secret = pyotp.random_base32()
             OTPUser.create(user=user, secret_otp=secret)
 
-        # If user logs in for the first time they will get an auth and a qrcode generated
+        # If user logs in for the first time they will get an auth uri and a qrcode generated
         if user.last_login == None:
             print("User hasn't logged in before")
             user_otp = OTPUser.objects.get(user_id=user.id).secret_otp
-            print(user_otp)
             key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
             qr_img = qrcode.make(key_str)
 
+            # Checks if the qrcode is saved as an image and creates it if not
             if path.exists(f'./media/{user_otp}.jpg'):
                 print("The file already exists")
             else:
@@ -143,6 +95,7 @@ def login(request):
                     'user_otp': user_otp,
                     'user': user
                     }
+
             return render(request, 'login_app/login-token.html', context)
         elif user:
             issuer_name = "BANK CO."
@@ -150,6 +103,7 @@ def login(request):
             key_str = pyotp.TOTP(user_otp).provisioning_uri(name=user.username, issuer_name=issuer_name)
             qr_img = qrcode.make(key_str)
 
+            # Checks if the qrcode is saved as an image creates it if not
             if path.exists(f'./media/{user_otp}.jpg'):
                 print("The file already exists")
             else:
@@ -160,20 +114,14 @@ def login(request):
                     'user_otp': user_otp,
                     'user': user
                     }
+
             print("WHERE AM I")
-            # return HttpResponseRedirect(reverse('login_app:QR_code_view'))
             return render(request, 'login_app/login-token.html', context)
         else:
             context = {
                     'error': 'Bad username or password.'
                     }
-       #if user:
-         #   dj_login(request, user)
-          #  return HttpResponseRedirect(reverse('banking_system:index'))
-       # else:
-        #    context = {
-         #           'error': 'Bad username or password.'
-          #         }
+
     return render(request, 'login_app/login.html', context)
 
 

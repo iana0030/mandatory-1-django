@@ -118,7 +118,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Login urls
+# Login urls for redirecting
 LOGIN_REDIRECT_URL = '/user-accounts/login'
 LOGOUT_REDIRECT_URL = '/user-accounts/logout'
 LOGIN_URL = '/user-accounts/login'

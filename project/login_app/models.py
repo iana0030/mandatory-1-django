@@ -26,4 +26,3 @@ class PasswordResetRequest(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.created_timestamp} - {self.updated_timestamp} - {self.token}'
-
