@@ -1,0 +1,37 @@
+{% extends "banking_system/base.html" %} {% block title %}
+<title>Loan-Account</title> {% endblock %} {% block content %}
+<section>
+    <h3>Loan Account</h3>
+    <div>
+        <form>
+            {% csrf_token %}
+            <input type="text" name="account_name" placeholder="Account name" />
+            <button hx-post="{% url 'banking_system:create_account' %}" hx-trigger="click" hx-swap="none" target="html">
+                Create loan account
+            </button>
+        </form>
+    </div>
+</section>
+<hr />
+<div>
+    <h3>Take Loan</h3>
+    <form>
+        <input type="text" name="deposit_account_primary_key" placeholder="Account Number">
+        <input type="text" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Description">
+
+        <button hx-post="{% url 'banking_system:take_loan' %}" hx-trigger="click" hx-swap="none">Submit</button>
+    </form>
+</div>
+<hr>
+<div>
+    <h3>Pay Loan</h3>
+    <form>
+        <input type="text" name="account_primary_key" placeholder="Account Number">
+        <input type="text" name="amount" placeholder="Amount">
+        <input type="text" name="text" placeholder="Description">
+
+        <button hx-post="{% url 'banking_system:pay_loan' %}" hx-trigger="click" hx-swap="none">Submit</button>
+    </form>
+</div>
+{% endblock %}
