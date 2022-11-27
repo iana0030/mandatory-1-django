@@ -24,4 +24,9 @@ urlpatterns = [
 
     # PATCH HTTP methods
     path('change_customer_rank', views.change_customer_rank , name='change_customer_rank'),
+    
+    
+    
+    # API 
+    path('get_balancesheet/<int:account_id>/', views.get_balancesheet, name='get_balancesheet')
 ]
