@@ -1,5 +1,5 @@
 import random
-import requests
+#import requests
 from decimal import *
 from django.contrib.auth.models import User
 from django.db import models, transaction
