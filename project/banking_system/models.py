@@ -35,7 +35,7 @@ def create_customer(username, password, first_name, last_name, address, phone_nu
         address = address,
         phone_number = phone_number,
         rank = rank,
-        user = user
+        user = user,
     )
     return customer
 
@@ -90,11 +90,11 @@ class Customer(models.Model):
     rank = models.CharField(max_length=6)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    
+
     def __str__(self):
         return f"ID {self.id} | USERNAME: {self.username} | PASSWORD: {self.password} | FIRST NAME {self.first_name} | LAST NAME: {self.last_name} | ADDRESS: {self.address} | PHONE NUMBER: {self.phone_number} | RANK: {self.rank} | USER_ID: {self.user.id}"
 
-    
+
     # retrieves all customer's accounts and accounts' movements
     # Customer.objects.get(pk=ID).get_customer_balance()
     # or assign Customer.objects.get(pk=ID) to variable like "customer"
@@ -107,7 +107,7 @@ class Customer(models.Model):
         for customer_account in customer_accounts:
             # for each Account Customer owns get Ledger rows (transactions)
             customer_movements_queryset = Ledger.objects.filter(account_id=customer_account.id)
-            
+
             # put each Ledger row (transaction) in list
             for customer_account_movement in customer_movements_queryset:
                 customer_account_movements.append(customer_account_movement)
@@ -145,7 +145,7 @@ class Customer(models.Model):
 
 
     # pays loan to loan account/s
-    # since one customer can take multiple loans, he can pay of one loan partly, 
+    # since one customer can take multiple loans, he can pay of one loan partly,
     # one loan entirely and one loan partly or more loans entirely and one loan partly
     # Customer.objects.get(pk=ID).pay_loan(ACCOUNT_ID, 100, "Money")
     # or assign Customer.objects.get(pk=ID) to variable like "customer"
@@ -213,7 +213,7 @@ class Account(models.Model):
         return f"ID: {self.id} | NAME: {self.name} | NUMBER: {self.number} | IS LOAN: {self.is_loan} | CUSTOMER: {self.customer}"
 
 
-    # creates new Account in Account table 
+    # creates new Account in Account table
     # Account.create("Main", "12131", False, CUSTOMER ID)
     @classmethod
     def create(cls, name, number, is_loan, customer):
@@ -228,7 +228,7 @@ class Account(models.Model):
 
     # goes through Ledger table, gets all acounts with particular ID and then aggregates their amount into SUM
     # Account.objects.get(pk=ID).balance
-    # or you can assign Account to variable like "account" 
+    # or you can assign Account to variable like "account"
     # and then do account.balance
     @property
     def balance(self):
