@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css" />
+    <script src="https://kit.fontawesome.com/815e91b325.js" crossorigin="anonymous"></script>
+    {% block title %} {% endblock %}
+</head>
+
+<body>
+    <nav>
+        <a href="{% url 'login_app:logout' %}">Log out</a>
+    </nav>
+
+    <h1>Bank</h1>
+    <p>Welcome {{ user }}</p>
+    
+    <body>
+        <nav>
+            <a href="{% url 'banking_system:index' %}">Home</a>
+            <a href="{% url 'login_app:logout' %}">Log out</a>
+        </nav>
+
+        <h1>Bank</h1>
+        <p>Welcome {{ user.username }}</p>
+
+        {% block content %}
+        {% endblock %}
+
+        {% block footer %}
+        {% endblock %}
+        
+        <script src="https://unpkg.com/htmx.org@1.8.0" integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc" crossorigin="anonymous"></script>
+        <script>
+            document.body.addEventListener('htmx:configRequest', (event) => {
+                event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+            })
+        </script>
+    </body>
+</html>
