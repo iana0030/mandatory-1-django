@@ -3,7 +3,24 @@ from django.shortcuts import render
 from .models import Ledger, Customer, Account, User
 from decimal import *
 
+# REST-FRAMEWORK
+from rest_framework import status
+from .serializers import LedgerSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
+# API
+@api_view(['GET'])
+def get_balancesheet(request, account_id, *args, **kwargs):
+    try:
+        if request.method == 'GET':
+            ledger = Ledger.objects.filter(account_id=account_id)
+            serializer = LedgerSerializer(ledger, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ledger.DoesNotExist:
+        return Response({'status': 'failed'}, status=status.HTTP_404_NOT_FOUND)
+        
+# GET HTTP methods
 def index(request):
     # VIEWING ACCOUNTS
     if request.method == "GET":

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Local
     'banking_system',
     'login_app',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
