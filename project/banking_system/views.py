@@ -73,7 +73,7 @@ def ledger_list(request):
 @login_required
 def view_all_customers(request):
     if request.method == 'GET':
-        customers = User.view_all_customers()
+        customers = Customer.view_all_customers()
 
         return render(request, 'banking_system/customers_list_partial.html', {'customers': customers})
 
@@ -81,7 +81,7 @@ def view_all_customers(request):
 @login_required
 def view_all_accounts(request):
     if request.method == 'GET':
-        accounts = User.view_all_accounts()
+        accounts = Account.view_all_accounts()
 
         return render(request, 'banking_system/accounts_list_partial.html', {'accounts': accounts})
 
@@ -151,22 +151,6 @@ def ledger_list(request):
     return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
 # USER methods
 # GET HTTP methods
-
-
-def view_all_customers(request):
-    if request.method == 'GET':
-        customers = User.view_all_customers()
-
-    return render(request, 'banking_system/customers_list_partial.html', {'customers': customers})
-
-
-def view_all_accounts(request):
-    if request.method == 'GET':
-        accounts = User.view_all_accounts()
-
-    return render(request, 'banking_system/accounts_list_partial.html', {'accounts': accounts})
-
-
 # POST HTTP methods
 def create_user(request):
     if request.method == 'POST':

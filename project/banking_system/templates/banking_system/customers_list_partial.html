@@ -1,10 +1,25 @@
 <div id="customers-list">
-    {% if customers %} {% for customer in customers %}
-    <div id="customer">
-        <div>
-            {{ customer.first_name }} {{ customer.last_name}} {{ customer.address }}
-            {{ customer.phone_number }} {{ customer.rank}}
-        </div>
-    </div>
-    {% endfor %} {% endif %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name and surname</th>
+                <th>Address</th>
+                <th>Phone Number</th>
+                <th>Rank</th>
+            </tr> 
+        </thead>
+
+        <tbody>
+            {% if customers %} 
+                {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.first_name }} {{ customer.last_name}}</td>
+                        <td>{{ customer.address }}</td>
+                        <td>{{ customer.phone_number }}</td>
+                        <td>{{ customer.rank}}</td>
+                    </tr>    
+                {% endfor %} 
+            {% endif %}
+        </tbody>
+    </table>
 </div>
