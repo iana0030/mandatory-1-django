@@ -230,10 +230,14 @@ def pay_loan(request):
 
 # PATCH HTTP methods
 def change_customer_rank(request):
-    updated_user = []
+    if request.method == 'GET':
+        return render(request, 'banking_system/change_rank.html')
+        
     if request.method == 'PATCH':
         customer_primary_key = request.PATCH['customer_primary_key']
         new_rank = request.PATCH['new_rank']
-        updated_user = User.change_customer_rank(
-            customer_primary_key, new_rank)
-    return render(request, 'banking_system/change_rank.html', {'updated_user': updated_user})
+
+        updated_user = Customer.change_customer_rank(customer_primary_key, new_rank)
+        response = render(request, 'banking_system/change_rank.html', {'updated_user': updated_user})
+        response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
