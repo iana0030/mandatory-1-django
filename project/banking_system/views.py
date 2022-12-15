@@ -227,12 +227,22 @@ def pay_loan(request):
 
         return render(request, 'banking_system/pay_loan')
 
+def transfer_money_to_other_bank(request):
+    if request.method == 'POST':
+        sender_account_number = request.POST['sender_account_number']
+        receiver_account_number = request.POST['receiver_account_number']
+        amount = request.POST['amount']
+        text = request.POST['text']
+
+        Account.transfer_money_to_other_bank(sender_account_number, receiver_account_number, amount, text)
+
+        return render(request, 'banking_system/customer_bank.html')
 
 # PATCH HTTP methods
 def change_customer_rank(request):
     if request.method == 'GET':
         return render(request, 'banking_system/change_rank.html')
-        
+
     if request.method == 'PATCH':
         customer_primary_key = request.PATCH['customer_primary_key']
         new_rank = request.PATCH['new_rank']
