@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from .models import Ledger, Customer, Account, User
 from decimal import *
 from django.contrib.auth.decorators import login_required
@@ -160,7 +160,9 @@ def create_user(request):
         last_name = request.POST['last_name']
 
         new_user = User.create_user(username, email, first_name, last_name)
-    return render(request, 'banking_system/user_bank.html', {'new_user': new_user})
+    response = render(request, 'banking_system/user_bank.html', {'new_user': new_user})
+    response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
+    return response
 
 
 def create_customer(request):
