@@ -1,10 +1,11 @@
-import email
-import random
-import requests
-from decimal import *
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
+
+import random
+import requests
+from decimal import *
 
 
 # represents the User class which is used by bank employees for administration or by regular customers
@@ -246,7 +247,7 @@ class Account(models.Model):
             'text': text
         }
         # send request and receive response
-        response = requests.post('http://127.0.0.1:9000/banking_system/receive_money_from_other_bank/', data=payload)
+        response = requests.post(settings.SECOND_BANK_URL, data=payload)
         if response.status_code == 200:
             sender_account = cls.objects.get(number=sender_account_number)
             Ledger.create(sender_account, -amount, text)

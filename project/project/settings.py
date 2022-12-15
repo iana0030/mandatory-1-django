@@ -130,6 +130,9 @@ LOGOUT_URL = 'user-accounts/logout'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
+# Connection strings
+SECOND_BANK_URL = 'http://127.0.0.1:9000/banking_system/receive_money_from_other_bank/'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
