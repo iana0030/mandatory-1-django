@@ -1,3 +1,4 @@
+import email
 import random
 import requests
 from decimal import *
@@ -51,7 +52,6 @@ class Customer(models.Model):
         return all_customers
 
 
-    # creates the customer for user
     # User.create_customer("username", "password", "first_name", "last_name", "address", "phone_number", "rank", user_primary_key)
     @classmethod
     def create_customer(cls, username, password, first_name, last_name, address, phone_number, rank, user):

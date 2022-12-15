@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from .models import Ledger, Customer, Account, User
-from decimal import *
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+
+import pyotp
+from decimal import *
+
+from .models import Ledger, Customer, Account, User
 
 
 # REST-FRAMEWORK
@@ -166,22 +168,27 @@ def create_user(request):
 
 
 def create_customer(request):
-    new_customer = []
+    if request.method == 'GET':
+        return render(request, 'banking_system/create_customer.html')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        email = request.POST['email']
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
         address = request.POST['address']
         phone_number = request.POST['phone_number']
         rank = request.POST['rank']
-        user_primary_key = request.POST['user_primary_key']
         secret_otp = pyotp.random_base32()
 
-        user = get_object_or_404(User, pk=user_primary_key)
-        new_customer = User.create_customer(username, password, first_name, last_name, address, phone_number, rank, user, secret_otp)
+        new_user = User.create_user(username, email, first_name, last_name)
+        # new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user, secret_otp)
+        new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user)
 
-    return render(request, 'banking_system/create_customer.html', {'new_customer': new_customer})
+        response = render(request, 'banking_system/create_customer.html', {'new_customer': new_customer})
+        response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
 
 
 def create_customer_account(request):
