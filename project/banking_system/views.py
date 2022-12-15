@@ -162,9 +162,9 @@ def create_user(request):
         last_name = request.POST['last_name']
 
         new_user = User.create_user(username, email, first_name, last_name)
-    response = render(request, 'banking_system/user_bank.html', {'new_user': new_user})
-    response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
-    return response
+        response = render(request, 'banking_system/user_bank.html', {'new_user': new_user})
+        response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
 
 
 def create_customer(request):
@@ -193,13 +193,16 @@ def create_customer(request):
 
 def create_customer_account(request):
     if request.method == 'POST':
-        customer_foreign_key = request.POST['customer_foreign_key']
+        customer_foreign_key = request.POST['customer_primary_key']
+        account_name = request.POST['customer_account_name']
 
-        new_customer_account = User.create_customer_account(
-            customer_foreign_key)
+        customer = get_object_or_404(Customer, pk=customer_foreign_key)
 
-    return render(request, 'banking_system/create_customer.html', {'new_customer_account': new_customer_account})
+        new_customer_account = Account.create_customer_account(customer, account_name)
 
+        response = render(request, 'banking_system/create_customer.html', {'new_customer_account': new_customer_account})
+        response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
 
 def take_loan(request):
     if request.method == 'POST':
