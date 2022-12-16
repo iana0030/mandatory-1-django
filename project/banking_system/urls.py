@@ -20,6 +20,7 @@ urlpatterns = [
     path('create_ledger_row/', views.create_ledger_row, name='create_ledger_row'),
     path('take_loan/', views.take_loan, name='take_loan'),
     path('pay_loan/', views.pay_loan, name='pay_loan'),
+    path('transfer_money_to_other_bank', views.transfer_money_to_other_bank, name="transfer_money_to_other_bank"),
     
     # Customer and user sepereated
     path('user_bank/', views.user_index, name='user_bank'),

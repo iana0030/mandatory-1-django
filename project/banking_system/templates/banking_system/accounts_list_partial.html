@@ -1,14 +1,25 @@
 <div id="accounts-list">
-    {% if accounts %}
-    <div>
-        {% for account in accounts %}
-        <div>
-            <p>
-                {{ account.account_number }} {{ account.is_loan }} {{
-        account.customer_fk_id_id }}
-            </p>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    <table>
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Loan</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% if accounts %}
+                {% for account in accounts %}
+                    <tr>
+                        <td>{{ account.customer.first_name }} {{ account.customer.last_name }}</td>
+                        <td>{{ account.number }}</td>
+                        <td>{{ account.name }}</td>
+                        <td>{{ account.is_loan}}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
 </div>
