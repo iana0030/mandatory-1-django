@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'banking_system',
     'login_app',
     'rest_framework',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cronjobs that are automated
+CRONJOBS = [
+        ('*/5 * * * *', 'banking_system.cron.interest_cronjob')
+        ]
+

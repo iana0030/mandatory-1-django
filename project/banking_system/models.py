@@ -274,7 +274,7 @@ class Ledger(models.Model):
             else:
                 print('Transaction not allowed. Balance too low!')
 
-    # uses requests python library to send HTTP request to hit endpoint 
+    # uses requests python library to send HTTP request to hit endpoint
     # on other running bank instance to simulatemoney transaction between two banks
     # other instance can be ran with command $python manage.py runserver 9000
     # as first instance/main project will be running on 8000
@@ -288,7 +288,7 @@ class Ledger(models.Model):
         # create payload with necessarry data for money transfer
         payload = {
             'receiver_account_number': receiver_account_number,
-            'amount': amount, 
+            'amount': amount,
             'text': text
         }
         # send request and receive response
