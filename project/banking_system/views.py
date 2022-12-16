@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect #NEW
+from django.urls import reverse #New
 
 import pyotp
 from decimal import *
 
 from .models import Ledger, Customer, Account, User
-
 
 # REST-FRAMEWORK
 from rest_framework import status
@@ -27,6 +28,12 @@ def get_balancesheet(request, account_id, *args, **kwargs):
 # GET HTTP methods
 @login_required
 def index(request):
+    if request.user.is_staff:
+        return HttpResponseRedirect(reverse('banking_system:user_bank'))
+    else:
+        return HttpResponseRedirect(reverse('banking_system:customer_bank'))
+    
+
     # VIEWING ACCOUNTS
     if request.method == "GET":
         user_id = request.user.id
