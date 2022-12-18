@@ -24,7 +24,7 @@ def get_balancesheet(request, account_id, *args, **kwargs):
             return Response(serializer.data, status=status.HTTP_200_OK)
     except Ledger.DoesNotExist:
         return Response({'status': 'failed'}, status=status.HTTP_404_NOT_FOUND)
-        
+
 # GET HTTP methods
 @login_required
 def index(request):
@@ -32,7 +32,7 @@ def index(request):
         return HttpResponseRedirect(reverse('banking_system:user_bank'))
     else:
         return HttpResponseRedirect(reverse('banking_system:customer_bank'))
-    
+
 
     # VIEWING ACCOUNTS
     if request.method == "GET":
@@ -53,7 +53,7 @@ def customer_index(request):
         customer = Customer.objects.get(user=User.objects.get(pk=user_id))
         accounts = Account.objects.filter(customer=customer)
 
-        for account in accounts: 
+        for account in accounts:
             account.bal = account.balance
             print(account.bal)
 
@@ -79,7 +79,7 @@ def view_account_details(request, pk):
     }
 
     return render(request, 'banking_system/account_details.html', context)
-    
+
 
 @login_required
 def ledger_list(request):
@@ -174,11 +174,12 @@ def ledger_list(request):
 def create_user(request):
     if request.method == 'POST':
         username = request.POST['username']
+        password = request.POST['password']
         email = request.POST['email']
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
 
-        new_user = User.create_user(username, email, first_name, last_name)
+        new_user = User.create_user(username, password, email, first_name, last_name)
         response = render(request, 'banking_system/user_bank.html', {'new_user': new_user})
         response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
         return response
@@ -199,7 +200,8 @@ def create_customer(request):
         rank = request.POST['rank']
         secret_otp = pyotp.random_base32()
 
-        new_user = User.create_user(username, email, first_name, last_name)
+        new_user = User.objects.create_user(username, first_name=first_name, last_name=last_name, email=email, password=password)
+        # new_user = User.create_user(username, password, email, first_name, last_name)
         # new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user, secret_otp)
         new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user)
 

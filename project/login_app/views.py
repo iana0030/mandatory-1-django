@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as dj_login, logout as dj_logout
 from django.http import HttpResponseRedirect
 from . models import PasswordResetRequest, OTPUser
+from banking_system.models import Customer
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 import pyotp, qrcode, os.path, base64
@@ -62,8 +63,13 @@ def login(request):
 
     if request.method == "POST":
         user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
+        user_name = request.POST['user']
+        customer = Customer.objects.filter(username=user_name)
 
         # In case username or password is wrong and authenticate can't find user
+        print(Customer.objects.filter(username=user_name))
+        print(user_name)
+        print(user)
         if not user:
             return render(request, 'login_app/sign_up.html')
 
