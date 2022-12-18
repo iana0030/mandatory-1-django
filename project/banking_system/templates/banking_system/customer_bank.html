@@ -23,15 +23,16 @@
             {% for account in accounts %}
             <tr>
                 <td>
-                    <a href="{% url 'banking_system:view_account_details' account.pk %}">{{ account.account_id }}</a>
+                    {% comment %} <a href="{% url 'banking_system:view_account_details' account.id %}">{{ account.id }}</a> {% endcomment %}
+                    {{ account.id }}
                 </td>
                 <td>
-                    <a href="{% url 'banking_system:view_account_details' account.pk %}">{{ account.account_name }}</a>
+                    {% comment %} <a href="{% url 'banking_system:view_account_details' account.id %}">{{ account.name }}</a> {% endcomment %}
+                    {{ account.name }}
                 </td>
-                <td>{{ account.account_number }}</td>
-                <td>{{ account.balance }}</td>
+                <td>{{ account.number }}</td>
+                <td>{{ account.bal }}</td>
 
-                <td>{{ account.customer_fk_id.id }}</td>
             </tr>
             {% endfor %}
         </tbody>

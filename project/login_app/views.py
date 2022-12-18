@@ -62,6 +62,11 @@ def login(request):
 
     if request.method == "POST":
         user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
+
+        # In case username or password is wrong and authenticate can't find user
+        if not user:
+            return render(request, 'login_app/sign_up.html')
+
         context = {
                 'user': user
                 }

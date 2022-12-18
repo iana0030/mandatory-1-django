@@ -22,7 +22,11 @@
         <input type="text" name="last_name" placeholder="Last Name" />
         <input type="text" name="address" placeholder="Address" />
         <input type="text" name="phone_number" placeholder="Phone Number" />
-        <input type="text" name="rank" placeholder="Rank" />
+        <select name="rank">
+          <option value="basic">Basic</option>
+          <option value="silver">Silver</option>
+          <option value="gold">Gold</option>
+        </select> 
 
         <button hx-post="{% url 'banking_system:create_customer' %}" hx-trigger="click" hx-swap="none">
             Create

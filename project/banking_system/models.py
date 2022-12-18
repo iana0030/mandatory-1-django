@@ -10,7 +10,7 @@ from decimal import *
 
 # represents the User class which is used by bank employees for administration or by regular customers
 def __str__(self):
-    return f"ID: {self.id} | SURNAME: {self.username} | EMAIL: {self.email} | FIRST NAME: {self.first_name} | LAST NAME: {self.last_name}"
+    return f"ID: {self.id} | USERNAME: {self.username} | EMAIL: {self.email} | FIRST NAME: {self.first_name} | LAST NAME: {self.last_name}"
 
 
 # creates the user

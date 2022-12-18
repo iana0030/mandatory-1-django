@@ -1,6 +1,15 @@
 {% extends "banking_system/base.html" %} {% block title %}
 <title>Loan-Account</title> {% endblock %} {% block content %}
-<section>
+
+<h3>Welcome to the Loan Account page</h3>
+<hr /> 
+<nav>
+    <a href="/banking_system"> Home </a>
+    <a href="{% url 'banking_system:make_transactions' %}">Transactions</a>
+</nav> 
+
+
+{% comment %} <section>
     <h3>Loan Account</h3>
     <div>
         <form>
@@ -11,7 +20,7 @@
             </button>
         </form>
     </div>
-</section>
+</section> {% endcomment %}
 <hr />
 <div>
     <h3>Take Loan</h3>
