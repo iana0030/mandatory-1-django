@@ -65,7 +65,7 @@ def login(request):
 
         # In case username or password is wrong and authenticate can't find user
         if not user:
-            return render(request, 'banking_system/')
+            return render(request, 'login_app/sign_up.html')
 
         context = {
                 'user': user
