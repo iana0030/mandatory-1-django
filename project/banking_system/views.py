@@ -48,7 +48,16 @@ def index(request):
 
 # cutomer_page
 def customer_index(request):
-    return render(request, 'banking_system/customer_bank.html', {})
+    if request.method == "GET":
+        user_id = request.user.id
+        customer = Customer.objects.get(user=User.objects.get(pk=user_id))
+        accounts = Account.objects.filter(customer=customer)
+
+        for account in accounts: 
+            account.bal = account.balance
+            print(account.bal)
+
+        return render(request, 'banking_system/customer_bank.html', {'accounts': accounts})
 
 
 # user_page
