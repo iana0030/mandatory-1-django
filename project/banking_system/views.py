@@ -140,15 +140,16 @@ def create_account(request):
 
 def make_transactions(request):
     if request.method == 'POST':
-        sender_account_id = request.POST["sender_account_id"]
-        receiver_account_id = request.POST["receiver_account_id"]
+        sender_account_number = request.POST["sender_account_number"]
+        receiver_account_number = request.POST["receiver_account_number"]
         amount = Decimal(request.POST["amount"])
         text = request.POST["text"]
-        sender_account = Account.objects.get(account_id=sender_account_id)
-        print(sender_account)
-        receiver_account = Account.objects.get(account_id=receiver_account_id)
-        Ledger.make_transactions(
-            sender_account, receiver_account, amount, text)
+
+        sender_account = Account.objects.get(number=sender_account_number)
+        receiver_account = Account.objects.get(number=receiver_account_number)
+
+        Ledger.make_transactions(sender_account, receiver_account, amount, text)
+
     return render(request, 'banking_system/make_transactions.html')
 
 
