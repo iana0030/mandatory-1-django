@@ -1,7 +1,7 @@
 <div id="ledger-list">
   {% if ledger %} {% for ledger_row in ledger %}
   <div id="ledger">
-    <p>{{ ledger_row.amount }} {{ledger_row.text}}</p>
+      <p>{{ ledger_row.account.customer.first_name }} {{ ledger_row.account.customer.last_name }}: {{ ledger_row.account.number }} - {{ledger_row.text}}: {{ ledger_row.amount }}</p>
   </div>
   {% endfor %} {% endif %}
 </div>

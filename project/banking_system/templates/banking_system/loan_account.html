@@ -2,11 +2,11 @@
 <title>Loan-Account</title> {% endblock %} {% block content %}
 
 <h3>Welcome to the Loan Account page</h3>
-<hr /> 
+<hr />
 <nav>
     <a href="/banking_system"> Home </a>
     <a href="{% url 'banking_system:make_transactions' %}">Transactions</a>
-</nav> 
+</nav>
 
 
 {% comment %} <section>
@@ -25,7 +25,7 @@
 <div>
     <h3>Take Loan</h3>
     <form>
-        <input type="text" name="deposit_account_primary_key" placeholder="Account Number">
+        <input type="text" name="deposit_account_primary_key" placeholder="Account ID">
         <input type="text" name="amount" placeholder="Amount">
         <input type="text" name="text" placeholder="Description">
 
@@ -36,7 +36,7 @@
 <div>
     <h3>Pay Loan</h3>
     <form>
-        <input type="text" name="account_primary_key" placeholder="Account Number">
+        <input type="text" name="account_primary_key" placeholder="Account ID">
         <input type="text" name="amount" placeholder="Amount">
         <input type="text" name="text" placeholder="Description">
 

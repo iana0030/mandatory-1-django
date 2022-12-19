@@ -167,7 +167,8 @@ def create_ledger_row(request):
 
 def ledger_list(request):
     if request.method == 'GET':
-        ledger = Ledger.objects.all()
+        user_id = request.user.id
+        ledger = Ledger.objects.filter(account=user_id)
     return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
 # USER methods
 # GET HTTP methods
@@ -229,8 +230,8 @@ def take_loan(request):
         deposit_account_primary_key = request.POST['deposit_account_primary_key']
         amount = Decimal(request.POST['amount'])
         text = request.POST['text']
-        
-        user_id = request.user.id 
+
+        user_id = request.user.id
         customer = get_object_or_404(Customer, user_id=user_id)
         customer.take_loan(deposit_account_primary_key, amount, text)
 
@@ -246,7 +247,7 @@ def pay_loan(request):
 
         customer.pay_loan(account_primary_key, amount, text)
 
-        return render(request, 'banking_system/pay_loan')
+        return render(request, 'banking_system/loan_account')
 
 def transfer_money_to_other_bank(request):
     if request.method == 'POST':
