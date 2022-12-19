@@ -247,7 +247,7 @@ def pay_loan(request):
 
         customer.pay_loan(account_primary_key, amount, text)
 
-        return render(request, 'banking_system/loan_account')
+        return render(request, 'banking_system/loan_account.html')
 
 def transfer_money_to_other_bank(request):
     if request.method == 'POST':
