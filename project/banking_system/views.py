@@ -120,11 +120,13 @@ def get_customer_movements(request, pk):
 
 # POST HTTP methods
 def create_account(request):
+    if request.method == 'GET':
+        return render(request, 'banking_system/loan_account.html', {})
+
     if request.method == "POST":
         user_id = request.user.id
         # accounts = Account.objects.filter(customer_fk_id=user_id)
         account = get_object_or_404(Account, pk=user_id)
-        print(account.customer_fk_id.id)
         customer_fk_id = account.customer_fk_id
         account_name = request.POST['account_name']
         # User.create_customer_account(customer_foreign_key=user_id)
@@ -134,7 +136,6 @@ def create_account(request):
         response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
         return response
 
-    return render(request, 'banking_system/loan_account.html', {})
 
 
 
@@ -226,11 +227,12 @@ def take_loan(request):
         deposit_account_primary_key = request.POST['deposit_account_primary_key']
         amount = Decimal(request.POST['amount'])
         text = request.POST['text']
-        customer = Customer.objects.get(pk=1)
+        
+        user_id = request.user.id 
+        customer = get_object_or_404(Customer, user_id=user_id)
+        customer.take_loan(deposit_account_primary_key, amount, text)
 
-        loan_account = customer.take_loan(deposit_account_primary_key, amount, text)
-
-        return render(request, 'banking_system/index.html', {'loan_account':loan_account})
+        return render(request, 'banking_system/loan_account.html')
 
 
 def pay_loan(request):
