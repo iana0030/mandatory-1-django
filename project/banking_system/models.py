@@ -267,7 +267,7 @@ class Ledger(models.Model):
         return f"ID: {self.transaction_id} | ACCOUNT: {self.account} | AMOUNT: {self.amount} | CREATED_AT: {self.time_stamp} | TEXT: {self.text}"
 
 
-    @ classmethod
+    @classmethod
     def create(cls, account, amount, text):
         new_ledger_row = cls.objects.create(
             account     = account,
