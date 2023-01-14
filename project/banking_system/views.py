@@ -240,11 +240,11 @@ def pay_loan(request):
         account_primary_key = request.POST.get('account_primary_key')
         amount = Decimal(request.POST.get('amount'))
         text = request.POST.get('text')
-        customer = Customer.objects.get(pk=1)
+        customer = Customer.objects.get(pk=request.user.id)
 
         customer.pay_loan(account_primary_key, amount, text)
 
-        return render(request, 'banking_system/pay_loan')
+        return render(request, 'banking_system/customer_bank.html')
 
 def transfer_money_to_other_bank(request):
     if request.method == 'POST':

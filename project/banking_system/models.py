@@ -214,7 +214,7 @@ class Account(models.Model):
     def balance(self):
         return Decimal(Ledger.objects.filter(account_id=self.id).aggregate(Sum('amount'))['amount__sum'] or 0.00).quantize(Decimal('.00'))
 
-    # User.create_customer_account(customer_primary_key, "account_name")
+    # Account.create_customer_account(customer, "account_name")
     @classmethod
     def create_customer_account(cls, customer, account_name):
         random_account_number = random.getrandbits(64)
