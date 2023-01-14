@@ -1,0 +1,35 @@
+{% extends "banking_system/base.html" %} {% block title %}
+<title>API View</title>
+{% endblock %} {% block content %}
+<a href="/banking_system"> Home </a>
+
+<h3>Welcome {{user.first_name}}</h3>
+<p>Your statment...</p>
+<hr /> 
+<table>
+    <thead>
+        <tr>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Time</th>
+            <th>Message</th>
+            <th>Account ID</th>
+        </tr> 
+    </thead>
+
+    <tbody>
+       
+            {% for d in data %}
+                <tr>
+                    <td>{{ d.transaction_id }}</td>
+                    <td>{{ d.amount }}</td>
+                    <td>{{ d.time_stamp }}</td>
+                    <td>{{ d.text }}</td>
+                    <td>{{ d.account }}</td>
+                </tr>    
+            {% endfor %} 
+    </tbody>
+</table>
+{% endblock %}
+
+{{ value|date:"D d M Y" }}
