@@ -140,6 +140,9 @@ def create_account(request):
 
 
 def make_transactions(request):
+    if request.method == 'GET':
+        return render(request, 'banking_system/make_transactions.html', {})
+
     if request.method == 'POST':
         sender_account_number = request.POST["sender_account_number"]
         receiver_account_number = request.POST["receiver_account_number"]
@@ -151,7 +154,10 @@ def make_transactions(request):
 
         Ledger.make_transactions(sender_account, receiver_account, amount, text)
 
-    return render(request, 'banking_system/make_transactions.html')
+        response = render(request, 'banking_system/make_transactions.html', {})
+        response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
+   
 
 
 def create_ledger_row(request):
@@ -165,11 +171,11 @@ def create_ledger_row(request):
     return render(request, 'banking_system/make_transactions.html', context={"new_ledger_row": new_ledger_row})
 
 
-def ledger_list(request):
-    if request.method == 'GET':
-        user_id = request.user.id
-        ledger = Ledger.objects.filter(account=user_id)
-    return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
+# def ledger_list(request):
+#     if request.method == 'GET':
+#         user_id = request.user.id
+#         ledger = Ledger.objects.filter(account=user_id)
+#     return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
 # USER methods
 # GET HTTP methods
 # POST HTTP methods

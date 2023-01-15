@@ -1,7 +1,29 @@
 <div id="ledger-list">
-  {% if ledger %} {% for ledger_row in ledger %}
-  <div id="ledger">
-      <p>{{ ledger_row.account.customer.first_name }} {{ ledger_row.account.customer.last_name }}: {{ ledger_row.account.number }} - {{ledger_row.text}}: {{ ledger_row.amount }}</p>
-  </div>
-  {% endfor %} {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Account Number</th>
+        <th>Text</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if ledger %}
+      {% for ledger_row in ledger %}
+      <tr>
+        <td>{{ ledger_row.account.customer.first_name }}</td>
+        <td>{{ ledger_row.account.customer.last_name }}</td>
+        <td>{{ ledger_row.account.number }}</td>
+        <td>{{ ledger_row.text }}</td>
+        <td>{{ ledger_row.amount }}</td>
+      </tr>
+      {% endfor %} {% endif %}
+    </tbody>
+  </table>
 </div>
+
+<!-- Not needed just in case if anything is wrong -->
+<!-- <p>{{ ledger_row.account.customer.first_name }} {{ ledger_row.account.customer.last_name }}: {{ ledger_row.account.number }} - {{ledger_row.text}}: {{ ledger_row.amount }}</p> -->
