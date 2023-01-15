@@ -13,10 +13,12 @@ from rest_framework import status
 from .serializers import LedgerSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import requests
+from django.conf import settings
 
 # API
 @api_view(['GET'])
-def get_balancesheet(request, account_id, *args, **kwargs):
+def get_balancesheet(request, account_id):
     try:
         if request.method == 'GET':
             ledger = Ledger.objects.filter(account_id=account_id)
@@ -24,6 +26,15 @@ def get_balancesheet(request, account_id, *args, **kwargs):
             return Response(serializer.data, status=status.HTTP_200_OK)
     except Ledger.DoesNotExist:
         return Response({'status': 'failed'}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+def statement(request, account_id):
+    response = requests.get(f'{settings.LEDGER_API}/{account_id}')
+    #  response = requests.get(f'http://127.0.0.1:8000/banking_system/api/get_balancesheet/{account_id}')
+    data = response.json()
+    return render(request, 'banking_system/statement.html', {'data': data})
+
+
 
 # GET HTTP methods
 @login_required
