@@ -16,10 +16,11 @@ def __str__(self):
 # creates the user
 # User.create("username", "email", "first_name", "last_name")
 @classmethod
-def create_user(cls, username, email, first_name, last_name):
+def create_user(cls, username, password, email, first_name, last_name):
     user = cls.objects.create(
         username = username,
         email = email,
+        password = password,
         first_name = first_name,
         last_name = last_name
     )
@@ -228,7 +229,7 @@ class Account(models.Model):
         new_loan_account = cls.create(f"LOAN{random_account_number}", random_account_number, True, customer)
         return new_loan_account
 
-    # uses requests python library to send HTTP request to hit endpoint 
+    # uses requests python library to send HTTP request to hit endpoint
     # on other running bank instance to simulatemoney transaction between two banks
     # other instance can be ran with command $python manage.py runserver 9000
     # as first instance/main project will be running on 8000
@@ -247,6 +248,7 @@ class Account(models.Model):
         # create payload with necessarry data for money transfer
         payload = {
             'receiver_account_number': receiver_account_number,
+
             'amount': amount, 
             'text': text,
             'idempotent_key': idempotent_key,
@@ -273,7 +275,7 @@ class Ledger(models.Model):
         return f"ID: {self.transaction_id} | ACCOUNT: {self.account} | AMOUNT: {self.amount} | CREATED_AT: {self.time_stamp} | TEXT: {self.text}"
 
 
-    @ classmethod
+    @classmethod
     def create(cls, account, amount, text):
         new_ledger_row = cls.objects.create(
             account     = account,

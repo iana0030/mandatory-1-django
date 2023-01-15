@@ -13,10 +13,12 @@ from rest_framework import status
 from .serializers import LedgerSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import requests
+from django.conf import settings
 
 # API
 @api_view(['GET'])
-def get_balancesheet(request, account_id, *args, **kwargs):
+def get_balancesheet(request, account_id):
     try:
         if request.method == 'GET':
             ledger = Ledger.objects.filter(account_id=account_id)
@@ -24,7 +26,16 @@ def get_balancesheet(request, account_id, *args, **kwargs):
             return Response(serializer.data, status=status.HTTP_200_OK)
     except Ledger.DoesNotExist:
         return Response({'status': 'failed'}, status=status.HTTP_404_NOT_FOUND)
-        
+    
+    
+def statement(request, account_id):
+    response = requests.get(f'{settings.LEDGER_API}/{account_id}')
+    #  response = requests.get(f'http://127.0.0.1:8000/banking_system/api/get_balancesheet/{account_id}')
+    data = response.json()
+    return render(request, 'banking_system/statement.html', {'data': data})
+
+
+
 # GET HTTP methods
 @login_required
 def index(request):
@@ -32,7 +43,7 @@ def index(request):
         return HttpResponseRedirect(reverse('banking_system:user_bank'))
     else:
         return HttpResponseRedirect(reverse('banking_system:customer_bank'))
-    
+
 
     # VIEWING ACCOUNTS
     if request.method == "GET":
@@ -53,7 +64,7 @@ def customer_index(request):
         customer = Customer.objects.get(user=User.objects.get(pk=user_id))
         accounts = Account.objects.filter(customer=customer)
 
-        for account in accounts: 
+        for account in accounts:
             account.bal = account.balance
             print(account.bal)
 
@@ -79,7 +90,7 @@ def view_account_details(request, pk):
     }
 
     return render(request, 'banking_system/account_details.html', context)
-    
+
 
 @login_required
 def ledger_list(request):
@@ -140,6 +151,9 @@ def create_account(request):
 
 
 def make_transactions(request):
+    if request.method == 'GET':
+        return render(request, 'banking_system/make_transactions.html', {})
+
     if request.method == 'POST':
         sender_account_number = request.POST["sender_account_number"]
         receiver_account_number = request.POST["receiver_account_number"]
@@ -151,7 +165,10 @@ def make_transactions(request):
 
         Ledger.make_transactions(sender_account, receiver_account, amount, text)
 
-    return render(request, 'banking_system/make_transactions.html')
+        response = render(request, 'banking_system/make_transactions.html', {})
+        response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
+        return response
+   
 
 
 def create_ledger_row(request):
@@ -165,21 +182,23 @@ def create_ledger_row(request):
     return render(request, 'banking_system/make_transactions.html', context={"new_ledger_row": new_ledger_row})
 
 
-def ledger_list(request):
-    if request.method == 'GET':
-        ledger = Ledger.objects.all()
-    return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
+# def ledger_list(request):
+#     if request.method == 'GET':
+#         user_id = request.user.id
+#         ledger = Ledger.objects.filter(account=user_id)
+#     return render(request, 'banking_system/ledger_list.html', {'ledger': ledger})
 # USER methods
 # GET HTTP methods
 # POST HTTP methods
 def create_user(request):
     if request.method == 'POST':
         username = request.POST['username']
+        password = request.POST['password']
         email = request.POST['email']
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
 
-        new_user = User.create_user(username, email, first_name, last_name)
+        new_user = User.create_user(username, password, email, first_name, last_name)
         response = render(request, 'banking_system/user_bank.html', {'new_user': new_user})
         response['HX-redirect'] = request.META['HTTP_HX_CURRENT_URL']
         return response
@@ -200,7 +219,8 @@ def create_customer(request):
         rank = request.POST['rank']
         secret_otp = pyotp.random_base32()
 
-        new_user = User.create_user(username, email, first_name, last_name)
+        new_user = User.objects.create_user(username, first_name=first_name, last_name=last_name, email=email, password=password)
+        # new_user = User.create_user(username, password, email, first_name, last_name)
         # new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user, secret_otp)
         new_customer = Customer.create_customer(username, password, first_name, last_name, address, phone_number, rank, new_user)
 
@@ -227,8 +247,8 @@ def take_loan(request):
         deposit_account_primary_key = request.POST['deposit_account_primary_key']
         amount = Decimal(request.POST['amount'])
         text = request.POST['text']
-        
-        user_id = request.user.id 
+
+        user_id = request.user.id
         customer = get_object_or_404(Customer, user_id=user_id)
         customer.take_loan(deposit_account_primary_key, amount, text)
 
@@ -245,6 +265,7 @@ def pay_loan(request):
         customer.pay_loan(account_primary_key, amount, text)
 
         return render(request, 'banking_system/customer_bank.html')
+
 
 def transfer_money_to_other_bank(request):
     if request.method == 'POST':

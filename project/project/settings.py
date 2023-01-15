@@ -134,6 +134,9 @@ MEDIA_URL = '/media/'
 # Connection strings
 SECOND_BANK_URL = 'http://127.0.0.1:9000/banking_system/receive_money_from_other_bank/'
 
+# Api endpoint
+LEDGER_API = 'http://127.0.0.1:8000/banking_system/api/get_balancesheet'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 

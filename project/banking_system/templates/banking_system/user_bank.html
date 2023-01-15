@@ -13,6 +13,17 @@
 
 <div>
     <h3>Create User</h3>
+    <form action="{% url 'login_app:sign_up' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="user" placeholder="User Name">
+        <input type="text" name="first_name" placeholder="First name">
+        <input type="text" name="last_name" placeholder="Last name">
+        <input type="email" name="email" placeholder="Email Address">
+        <input type="password" name="password" placeholder="Password">
+        <input type="password" name="confirm_password" placeholder="Confirm Password">
+        <button>Create</button>
+    </form>
+<!--
     <form>
         {% csrf_token %}
         <input type="text" name="username" placeholder="Username" />
@@ -24,6 +35,7 @@
             Create
         </button>
     </form>
+-->
 </div>
 
 <hr />
