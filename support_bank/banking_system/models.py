@@ -1,5 +1,6 @@
 from decimal import *
 import random
+import datetime
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Sum
@@ -274,10 +275,36 @@ class Ledger(models.Model):
                 print('Transaction not allowed. Balance too low!')
 
     # this method is 2nd part of transfer_money_to_other_bank method
-    def receive_money_from_other_bank(receiver_account_number, amount, text):
-        # check if the account exists and if it has more funds than it is being sent
+    def receive_money_from_other_bank(receiver_account_number, amount, text, idempotent_key):
+        # check if the account exists
         if not Account.objects.filter(number=receiver_account_number).exists():
             return f'account with {receiver_account_number} does not exist'
 
-        receiver_account = Account.objects.get(number=receiver_account_number)
-        Ledger.create(receiver_account, amount, text)
+        # search for the last idempotent broker row where same idempotent key was used
+        if IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).exists():
+            last_idempotent_broker_row = IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).latest('id')
+
+            # create new idempotent row and check if the request was processed in the last 5 minutes
+            idempotent_broker_row = IdempotentBroker.create(idempotent_key)
+            time_delta = datetime.timedelta(minutes=5)
+            if idempotent_broker_row.created_at - last_idempotent_broker_row.created_at < time_delta:
+                return False
+        else: 
+            # if request was processed in more than last 5 minutes
+            receiver_account = Account.objects.get(number=receiver_account_number)
+            Ledger.create(receiver_account, amount, text)
+            return True
+
+
+class IdempotentBroker(models.Model):
+    id = models.IntegerField(primary_key=True)
+    idempotent_key = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"id: {self.id} idempotent_key: {self.idempotent_key} created_at: {self.created_at}"
+
+    @classmethod 
+    def create(cls, idempotent_key):
+        new_idempotent_row = cls.objects.create(idempotent_key=idempotent_key)
+        new_idempotent_row

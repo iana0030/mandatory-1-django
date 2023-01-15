@@ -240,17 +240,24 @@ class Account(models.Model):
         if cls.objects.get(number=sender_account_number).balance < amount:
             return 'accounts does not have enough funds'
 
+        # Create idempotent key 
+        key = f'{sender_account_number}{receiver_account_number}{amount}'
+        idempotent_key = hash(key)
+
         # create payload with necessarry data for money transfer
         payload = {
             'receiver_account_number': receiver_account_number,
             'amount': amount, 
-            'text': text
+            'text': text,
+            'idempotent_key': idempotent_key,
         }
         # send request and receive response
         response = requests.post(settings.SECOND_BANK_URL, data=payload)
-        if response.status_code == 200:
+        if response.status_code == 201:
             sender_account = cls.objects.get(number=sender_account_number)
             Ledger.create(sender_account, -amount, text)
+        else:
+            print("Transaction already processed")
 
 # represents the Ledger class which stores transactions in a way that bulk_create() creates two rows
 # one row is deduction from one account, other row is addition to other account
