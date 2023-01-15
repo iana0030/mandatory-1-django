@@ -282,18 +282,20 @@ class Ledger(models.Model):
 
         # search for the last idempotent broker row where same idempotent key was used
         if IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).exists():
-            last_idempotent_broker_row = IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).latest('id')
+            last_idempotent_broker_row = IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).latest('id') # 14:31
 
             # create new idempotent row and check if the request was processed in the last 5 minutes
-            idempotent_broker_row = IdempotentBroker.create(idempotent_key)
+            IdempotentBroker.create(idempotent_key) # 14:40
+            idempotent_broker_row = IdempotentBroker.objects.filter(idempotent_key__exact=idempotent_key).latest('id')
             time_delta = datetime.timedelta(minutes=5)
             if idempotent_broker_row.created_at - last_idempotent_broker_row.created_at < time_delta:
                 return False
-        else: 
-            # if request was processed in more than last 5 minutes
-            receiver_account = Account.objects.get(number=receiver_account_number)
-            Ledger.create(receiver_account, amount, text)
-            return True
+        
+        idempotent_broker_row = IdempotentBroker.create(idempotent_key)
+        # if request was processed in more than last 5 minutes
+        receiver_account = Account.objects.get(number=receiver_account_number)
+        Ledger.create(receiver_account, amount, text)
+        return True
 
 
 class IdempotentBroker(models.Model):
@@ -307,4 +309,4 @@ class IdempotentBroker(models.Model):
     @classmethod 
     def create(cls, idempotent_key):
         new_idempotent_row = cls.objects.create(idempotent_key=idempotent_key)
-        new_idempotent_row
+        return new_idempotent_row
