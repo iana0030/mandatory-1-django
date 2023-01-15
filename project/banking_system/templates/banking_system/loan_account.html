@@ -25,7 +25,8 @@
 <div>
     <h3>Take Loan</h3>
     <form>
-        <input type="text" name="deposit_account_primary_key" placeholder="Account ID">
+        {% csrf_token %}
+        <input type="text" name="deposit_account_primary_key" placeholder="Account Number">
         <input type="text" name="amount" placeholder="Amount">
         <input type="text" name="text" placeholder="Description">
 

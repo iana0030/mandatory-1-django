@@ -172,9 +172,13 @@ def receive_money_from_other_bank(request):
         receiver_account_number = request.POST['receiver_account_number']
         amount = request.POST['amount']
         text = request.POST['text']
+        idempotent_key = request.POST['idempotent_key']
 
-        Ledger.receive_money_from_other_bank(receiver_account_number, amount, text)
-        return HttpResponse(status=200)
+        status = Ledger.receive_money_from_other_bank(receiver_account_number, amount, text, idempotent_key)
+        if status == True:
+            return HttpResponse(status=201)
+        else:
+            return HttpResponse(status=200)
 
 # PATCH HTTP methods
 def change_customer_rank(request):
