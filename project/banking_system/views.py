@@ -26,8 +26,8 @@ def get_balancesheet(request, account_id):
             return Response(serializer.data, status=status.HTTP_200_OK)
     except Ledger.DoesNotExist:
         return Response({'status': 'failed'}, status=status.HTTP_404_NOT_FOUND)
-    
-    
+
+
 def statement(request, account_id):
     response = requests.get(f'{settings.LEDGER_API}/{account_id}')
     #  response = requests.get(f'http://127.0.0.1:8000/banking_system/api/get_balancesheet/{account_id}')
@@ -168,7 +168,7 @@ def make_transactions(request):
         response = render(request, 'banking_system/make_transactions.html', {})
         response['HX-Redirect'] = request.META['HTTP_HX_CURRENT_URL']
         return response
-   
+
 
 
 def create_ledger_row(request):
@@ -260,7 +260,7 @@ def pay_loan(request):
         account_primary_key = request.POST.get('account_primary_key')
         amount = Decimal(request.POST.get('amount'))
         text = request.POST.get('text')
-        customer = Customer.objects.get(pk=request.user.id)
+        customer = Customer.objects.get(user=request.user.id)
 
         customer.pay_loan(account_primary_key, amount, text)
 
