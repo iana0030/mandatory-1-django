@@ -14,5 +14,8 @@ def interest_cronjob():
 
     # Just appending some text to existing text, showcasing that interest has been added
     if not Ledger.objects.filter(amount__lt=0, text__contains='Added 2% interest'):
-        Ledger.objects.filter(amount__lt=0).update(text=Concat('text', Value(' - Added 2% interest')))
+        Ledger.objects.filter(amount__lt=0).values('text').update(text=Concat('text', Value(' - Added 2% interest')))
+        # texts = Ledger.objects.filter(amount__lt=0).values('text')
+        # texts.update(text=Concat('text', Value(' - Added 2% interest')))
+        # Ledger.objects.filter(amount__lt=0).update(text=Concat(texts, Value(' - Added 2% interest')))
 

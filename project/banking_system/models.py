@@ -235,13 +235,14 @@ class Account(models.Model):
     # as first instance/main project will be running on 8000
     @classmethod
     def transfer_money_to_other_bank(cls, sender_account_number, receiver_account_number, amount, text):
+        amount = Decimal(amount)
         # check if the account exists and if it has more funds than it is being sent
         if not cls.objects.filter(number=sender_account_number).exists():
             return f'account with {sender_account_number} does not exist'
         if cls.objects.get(number=sender_account_number).balance < amount:
             return 'accounts does not have enough funds'
 
-        # Create idempotent key 
+        # Create idempotent key
         key = f'{sender_account_number}{receiver_account_number}{amount}'
         idempotent_key = hash(key)
 
@@ -249,7 +250,7 @@ class Account(models.Model):
         payload = {
             'receiver_account_number': receiver_account_number,
 
-            'amount': amount, 
+            'amount': amount,
             'text': text,
             'idempotent_key': idempotent_key,
         }
